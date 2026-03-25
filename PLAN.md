@@ -13,7 +13,7 @@
 ## 기능 명세 (Feature Spec)
 
 ### 1. 사용자 인증 / 권한
-- 이메일 + 비밀번호 로그인 (JWT)
+- 이메일 + 비밀번호 로그인 (Supabase Auth, JWT)
 - 초대 방식 회원가입 (초기: 초대 코드 or 이메일 초대)
 - 역할: 초기에는 단일 권한 (초대된 사용자는 모든 기능 동일하게 사용 가능)
 - Sprint 4에서 Owner / Viewer 권한 분리 예정
@@ -239,14 +239,13 @@
 
 ## DB 스키마 (Sprint 1)
 
-### users
+### public.profiles
+Supabase Auth가 `auth.users` 테이블을 관리. 앱은 `public.profiles`로 확장 정보만 저장.
+
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
-| id | UUID PK | |
-| email | VARCHAR UNIQUE | |
-| password_hash | VARCHAR | BCrypt |
-| name | VARCHAR | |
-| role | ENUM | OWNER / MEMBER (Sprint 4에서 VIEWER 분리 예정) |
+| id | UUID PK | auth.users.id와 동일 |
+| name | VARCHAR | 표시 이름 |
 | created_at | TIMESTAMP | |
 
 ### accounts
@@ -358,12 +357,12 @@
 ## 기술 스택 상세
 
 ### Backend
-- Kotlin 1.9 + Spring Boot 3.2
-- Spring Security (JWT 기반)
-- Spring Data JPA + Hibernate
-- PostgreSQL 16
-- Flyway (DB 마이그레이션)
-- JJWT 0.12 (JWT 라이브러리)
+- Kotlin 2.2.21 + Spring Boot 4.0.4 (Java 25)
+- Spring Data JDBC (JPA/Hibernate 미사용)
+- Spring Modulith 2.0.3 (모듈형 아키텍처)
+- Spring WebMVC + REST Client
+- Spring Security (JWT 검증 — Supabase Auth 발급 토큰 검증만)
+- PostgreSQL (Supabase, 상세는 [docs/database.md](docs/database.md) 참고)
 
 ### Frontend
 - Next.js 14 (App Router)
@@ -374,10 +373,13 @@
 - Axios (HTTP 클라이언트)
 
 ### Infrastructure
-- Docker Compose (로컬 개발)
+- Docker Compose (로컬 개발 — PostgreSQL만)
 - Frontend 배포: Vercel (Next.js, GitHub 연동 자동 배포)
 - Backend 배포: Railway (Spring Boot, Dockerfile 기반)
-- Database 배포: Railway PostgreSQL (백엔드와 동일 플랫폼, 내부 네트워크)
+- Database: Supabase PostgreSQL (Connection Pooler)
+- 인증: Supabase Auth (이메일/비밀번호, JWT)
+
+상세 설정: [docs/infrastructure.md](docs/infrastructure.md), [docs/auth.md](docs/auth.md)
 
 ### 레포 구조
 - **모노레포** (단일 git 레포)
@@ -387,8 +389,10 @@
 
 ```
 share-your-portfolio/       ← 단일 git 레포
-├── backend/                ← Railway 배포 (Spring Boot)
+├── api-server/             ← Railway 배포 (Spring Boot)
 ├── frontend/               ← Vercel 배포 (Next.js)
-├── docker-compose.yml      ← 로컬 개발용
+├── docs/                   ← 인프라/인증/DB 상세 문서
+├── docker-compose.yml      ← 로컬 개발용 (PostgreSQL)
+├── CLAUDE.md               ← Claude agent용 핵심 컨텍스트
 └── PLAN.md
 ```
