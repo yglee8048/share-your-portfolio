@@ -1,6 +1,6 @@
-import type { Metadata } from 'next';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
-import ThemeRegistry from '@/components/ThemeRegistry';
+import type { Metadata } from 'next';
+import ThemeRegistry from '@/shared/ui/ThemeRegistry';
 
 export const metadata: Metadata = {
   title: '자산 포트폴리오',

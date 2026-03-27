@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import MenuIcon from '@mui/icons-material/Menu';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Box,
   Drawer,
@@ -13,14 +16,11 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
 
-const DRAWER_WIDTH = 240;
+const DRAWER_WIDTH = 220;
 
 const bottomNavItems = [
   { label: '대시보드', href: '/', icon: <DashboardIcon /> },
@@ -35,13 +35,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const bottomNavValue = bottomNavItems.findIndex((item) => item.href === pathname);
+  const bottomNavValue = bottomNavItems.findIndex(
+    (item) => item.href === pathname || (item.href !== '/' && pathname.startsWith(item.href))
+  );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+      {/* 모바일 AppBar */}
       <AppBar
         position="fixed"
-        sx={{ zIndex: (t) => t.zIndex.drawer + 1, display: { md: 'none' } }}
+        elevation={0}
+        sx={{
+          zIndex: (t) => t.zIndex.drawer + 1,
+          display: { md: 'none' },
+          backgroundColor: '#1e293b',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+        }}
       >
         <Toolbar>
           <IconButton
@@ -52,7 +61,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap>
+          <Typography variant="h6" noWrap sx={{ fontWeight: 700, letterSpacing: '-0.02em' }}>
             포트폴리오
           </Typography>
         </Toolbar>
@@ -65,11 +74,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           display: { xs: 'none', md: 'block' },
           width: DRAWER_WIDTH,
           flexShrink: 0,
-          '& .MuiDrawer-paper': { width: DRAWER_WIDTH, boxSizing: 'border-box' },
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+          },
         }}
       >
-        <Toolbar>
-          <Typography variant="h6" noWrap>
+        <Toolbar sx={{ px: 2.5, minHeight: '64px !important' }}>
+          <Typography
+            variant="h6"
+            noWrap
+            sx={{ fontWeight: 700, color: '#f1f5f9', letterSpacing: '-0.02em' }}
+          >
             포트폴리오
           </Typography>
         </Toolbar>
@@ -95,10 +111,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, md: 3 },
           mt: { xs: 8, md: 0 },
           mb: { xs: 7, md: 0 },
           width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
+          minHeight: '100vh',
         }}
       >
         {children}
@@ -107,9 +124,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* 모바일 하단 탭 */}
       {isMobile && (
         <BottomNavigation
-          value={bottomNavValue}
+          value={bottomNavValue === -1 ? false : bottomNavValue}
           onChange={(_, newValue) => router.push(bottomNavItems[newValue].href)}
-          sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+          }}
         >
           {bottomNavItems.map((item) => (
             <BottomNavigationAction
