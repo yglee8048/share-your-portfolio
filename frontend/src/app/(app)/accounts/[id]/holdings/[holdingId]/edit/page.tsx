@@ -12,41 +12,75 @@ import {
   Breadcrumbs,
   Link as MuiLink,
   InputAdornment,
+  Divider,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
-import { useAccount, useCreateHolding } from '@/features/account/hooks';
+import { useAccount, useUpdateHolding, useDeleteHolding } from '@/features/account/hooks';
 import { useAssetTypes } from '@/features/meta/hooks';
-import type { Currency, CreateHoldingForm } from '@/shared/types';
+import { formatAmount, formatRate, getProfitColor } from '@/shared/lib/format';
+import type { Currency, UpdateHoldingForm } from '@/shared/types';
 import { CURRENCY_SYMBOLS } from '@/shared/types';
 
 const CURRENCIES: Currency[] = ['KRW', 'USD', 'JPY', 'EUR', 'GBP', 'CNY', 'HKD'];
 
-const INITIAL_FORM: CreateHoldingForm = {
-  name: '',
-  ticker: '',
-  assetTypeCode: '',
-  currency: '',
-  averageBuyPrice: '',
-  quantity: '',
-  currentPrice: '',
-};
-
-export default function NewHoldingPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function EditHoldingPage({
+  params,
+}: {
+  params: Promise<{ id: string; holdingId: string }>;
+}) {
+  const { id, holdingId } = use(params);
   const router = useRouter();
-  const { account } = useAccount(id);
-  const { createHolding, loading } = useCreateHolding();
+  const { account, holdings } = useAccount(id);
+  const { updateHolding, loading: saving } = useUpdateHolding();
+  const { deleteHolding, loading: deleting } = useDeleteHolding();
   const { assetTypes } = useAssetTypes();
-  const [form, setForm] = useState<CreateHoldingForm>(INITIAL_FORM);
 
-  function handleChange(field: keyof CreateHoldingForm, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const holding = holdings.find((h) => h.id === holdingId);
+  const [form, setForm] = useState<UpdateHoldingForm | null>(null);
+
+  // 종목 로드 후 초기값 설정 (한 번만)
+  if (holding && form === null) {
+    setForm({
+      name: holding.asset.name,
+      ticker: holding.asset.ticker ?? '',
+      assetTypeCode: holding.assetType.code,
+      currency: holding.currency,
+      averageBuyPrice: String(holding.averageBuyPrice),
+      quantity: String(holding.quantity),
+      currentPrice: holding.currentPrice != null ? String(holding.currentPrice) : '',
+    });
+  }
+
+  if (!account || !holding) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h6" color="text.secondary">
+          종목을 찾을 수 없습니다.
+        </Typography>
+        <Button onClick={() => router.push(`/accounts/${id}`)} sx={{ mt: 2 }}>
+          계좌 상세로
+        </Button>
+      </Box>
+    );
+  }
+
+  if (!form) return null;
+
+  function handleChange(field: keyof UpdateHoldingForm, value: string) {
+    setForm((prev) => (prev ? { ...prev, [field]: value } : prev));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await createHolding(id, form);
+    if (!form) return;
+    await updateHolding(id, holdingId, form);
+    router.push(`/accounts/${id}`);
+  }
+
+  async function handleDelete() {
+    if (!confirm(`'${holding?.asset.name}' 종목을 삭제하시겠습니까?`)) return;
+    await deleteHolding(id, holdingId);
     router.push(`/accounts/${id}`);
   }
 
@@ -54,8 +88,7 @@ export default function NewHoldingPage({ params }: { params: Promise<{ id: strin
     form.name.trim() && form.assetTypeCode && form.currency && form.averageBuyPrice && form.quantity;
 
   const currencySymbol = form.currency ? CURRENCY_SYMBOLS[form.currency as Currency] : '';
-
-  const accountLabel = account?.nickName ?? id;
+  const accountLabel = account.nickName;
 
   return (
     <Box sx={{ maxWidth: 560, mx: 'auto' }}>
@@ -77,18 +110,84 @@ export default function NewHoldingPage({ params }: { params: Promise<{ id: strin
           {accountLabel}
         </MuiLink>
         <Typography color="text.primary" sx={{ fontSize: '0.875rem' }}>
-          종목 추가
+          종목 수정
         </Typography>
       </Breadcrumbs>
 
       <Box sx={{ mb: 3 }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-          {accountLabel}
+          {holding.asset.name}
+          {holding.asset.ticker && ` · ${holding.asset.ticker}`}
         </Typography>
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          종목 추가
+          종목 수정
         </Typography>
       </Box>
+
+      {/* 현재 수익 현황 */}
+      {holding.profitRate != null && (
+        <Card elevation={0} sx={{ mb: 3, overflow: 'hidden' }}>
+          <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                bgcolor: '#e8f5e9',
+              }}
+            >
+              {[
+                {
+                  label: '원금',
+                  value: formatAmount(holding.principalAmount, holding.currency),
+                  color: 'text.primary',
+                },
+                {
+                  label: '현재 가치',
+                  value: holding.currentValue != null
+                    ? formatAmount(holding.currentValue, holding.currency)
+                    : '—',
+                  color: 'text.primary',
+                },
+                {
+                  label: '평가 손익',
+                  value: holding.unrealizedGain != null
+                    ? `${holding.unrealizedGain > 0 ? '+' : ''}${formatAmount(holding.unrealizedGain, holding.currency)}`
+                    : '—',
+                  color: holding.unrealizedGain != null ? getProfitColor(holding.unrealizedGain) : 'text.secondary',
+                },
+                {
+                  label: '수익률',
+                  value: formatRate(holding.profitRate),
+                  color: getProfitColor(holding.profitRate),
+                },
+              ].map((item, idx) => (
+                <Box
+                  key={item.label}
+                  sx={{
+                    px: 2,
+                    py: 1.75,
+                    borderLeft: idx > 0 ? '1px solid #c8e6c9' : 'none',
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                    {item.label}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontFamily: '"Manrope", sans-serif',
+                      fontWeight: 700,
+                      color: item.color,
+                    }}
+                  >
+                    {item.value}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+      )}
 
       <Card elevation={0}>
         <CardContent sx={{ p: { xs: 3, md: 4 } }}>
@@ -104,7 +203,6 @@ export default function NewHoldingPage({ params }: { params: Promise<{ id: strin
               required
               fullWidth
               size="small"
-              placeholder="예) 삼성전자, Apple"
             />
 
             <TextField
@@ -113,7 +211,6 @@ export default function NewHoldingPage({ params }: { params: Promise<{ id: strin
               onChange={(e) => handleChange('ticker', e.target.value)}
               fullWidth
               size="small"
-              placeholder="예) 005930, AAPL"
             />
 
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -211,12 +308,29 @@ export default function NewHoldingPage({ params }: { params: Promise<{ id: strin
               <Button
                 type="submit"
                 variant="contained"
-                disabled={!isValid || loading}
+                disabled={!isValid || saving}
                 fullWidth
               >
                 저장
               </Button>
             </Box>
+          </Box>
+
+          <Divider sx={{ my: 3, borderColor: 'divider' }} />
+
+          <Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+              종목을 삭제하면 해당 종목의 모든 데이터가 삭제됩니다.
+            </Typography>
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              종목 삭제
+            </Button>
           </Box>
         </CardContent>
       </Card>

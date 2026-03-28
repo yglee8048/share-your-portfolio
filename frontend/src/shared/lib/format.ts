@@ -38,8 +38,8 @@ export function isNegative(value: number): boolean {
 }
 
 export function getProfitColor(value: number): string {
-  if (value > 0) return 'success.main';
-  if (value < 0) return 'error.main';
+  if (value > 0) return 'secondary.main'; // 한국 금융 컨벤션: 상승=파랑(#005faf)
+  if (value < 0) return 'error.main';     // 하락=빨강(#ac0c18)
   return 'text.secondary';
 }
 

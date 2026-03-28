@@ -11,37 +11,67 @@ import {
   MenuItem,
   Breadcrumbs,
   Link as MuiLink,
+  Divider,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useCreateAccount } from '@/features/account/hooks';
+import { use, useState } from 'react';
+import { useAccount, useUpdateAccount, useDeleteAccount } from '@/features/account/hooks';
 import { useInstitutions, useAccountTypes } from '@/features/meta/hooks';
-import type { Currency, CreateAccountForm } from '@/shared/types';
+import type { Currency, UpdateAccountForm } from '@/shared/types';
 
 const CURRENCIES: Currency[] = ['KRW', 'USD', 'JPY', 'EUR', 'GBP', 'CNY', 'HKD'];
 
-const INITIAL_FORM: CreateAccountForm = {
-  institutionCode: '',
-  accountNumber: '',
-  accountTypeCode: '',
-  currency: '',
-  nickName: '',
-};
-
-export default function NewAccountPage() {
+export default function EditAccountPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
-  const { createAccount, loading } = useCreateAccount();
+  const { account } = useAccount(id);
+  const { updateAccount, loading: saving } = useUpdateAccount();
+  const { deleteAccount, loading: deleting } = useDeleteAccount();
   const { institutions } = useInstitutions();
   const { accountTypes } = useAccountTypes();
-  const [form, setForm] = useState<CreateAccountForm>(INITIAL_FORM);
 
-  function handleChange(field: keyof CreateAccountForm, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const [form, setForm] = useState<UpdateAccountForm | null>(null);
+
+  // 계좌 로드 후 초기값 설정 (한 번만)
+  if (account && form === null) {
+    setForm({
+      institutionCode: account.institution.code,
+      accountNumber: account.accountNumber,
+      accountTypeCode: account.accountType.code,
+      currency: account.currency,
+      nickName: account.nickName,
+    });
+  }
+
+  if (!account) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h6" color="text.secondary">
+          계좌를 찾을 수 없습니다.
+        </Typography>
+        <Button onClick={() => router.push('/accounts')} sx={{ mt: 2 }}>
+          계좌 목록으로
+        </Button>
+      </Box>
+    );
+  }
+
+  if (!form) return null;
+
+  function handleChange(field: keyof UpdateAccountForm, value: string) {
+    setForm((prev) => (prev ? { ...prev, [field]: value } : prev));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await createAccount(form);
+    if (!form) return;
+    await updateAccount(id, form);
+    router.push(`/accounts/${id}`);
+  }
+
+  async function handleDelete() {
+    if (!confirm('계좌를 삭제하시겠습니까? 보유 종목도 함께 삭제됩니다.')) return;
+    await deleteAccount(id);
     router.push('/accounts');
   }
 
@@ -51,6 +81,7 @@ export default function NewAccountPage() {
     form.accountTypeCode &&
     form.currency &&
     form.nickName.trim();
+  const accountLabel = account.nickName;
 
   return (
     <Box sx={{ maxWidth: 560, mx: 'auto' }}>
@@ -63,17 +94,25 @@ export default function NewAccountPage() {
         >
           계좌
         </MuiLink>
+        <MuiLink
+          underline="hover"
+          color="text.secondary"
+          onClick={() => router.push(`/accounts/${id}`)}
+          sx={{ cursor: 'pointer', fontSize: '0.875rem' }}
+        >
+          {accountLabel}
+        </MuiLink>
         <Typography color="text.primary" sx={{ fontSize: '0.875rem' }}>
-          계좌 추가
+          계좌 수정
         </Typography>
       </Breadcrumbs>
 
       <Box sx={{ mb: 3 }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-          내 포트폴리오
+          {accountLabel}
         </Typography>
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          계좌 추가
+          계좌 수정
         </Typography>
       </Box>
 
@@ -142,7 +181,6 @@ export default function NewAccountPage() {
               fullWidth
               size="small"
               placeholder="예) 1234-5678-9012"
-              helperText="저장 시 뒷자리는 자동으로 마스킹됩니다."
             />
 
             <TextField
@@ -158,16 +196,38 @@ export default function NewAccountPage() {
             <Box sx={{ display: 'flex', gap: 2, pt: 1 }}>
               <Button
                 variant="outlined"
-                onClick={() => router.push('/accounts')}
+                onClick={() => router.push(`/accounts/${id}`)}
                 fullWidth
                 sx={{ borderColor: 'divider', color: 'text.secondary' }}
               >
                 취소
               </Button>
-              <Button type="submit" variant="contained" disabled={!isValid || loading} fullWidth>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={!isValid || saving}
+                fullWidth
+              >
                 저장
               </Button>
             </Box>
+          </Box>
+
+          <Divider sx={{ my: 3, borderColor: 'divider' }} />
+
+          <Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+              계좌를 삭제하면 보유 종목 데이터도 함께 삭제됩니다.
+            </Typography>
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              계좌 삭제
+            </Button>
           </Box>
         </CardContent>
       </Card>

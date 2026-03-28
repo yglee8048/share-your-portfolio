@@ -1,9 +1,7 @@
 'use client';
 
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import MenuIcon from '@mui/icons-material/Menu';
-import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Box,
   Drawer,
@@ -13,6 +11,8 @@ import {
   IconButton,
   BottomNavigation,
   BottomNavigationAction,
+  Avatar,
+  Button,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
@@ -20,12 +20,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Sidebar from './Sidebar';
 
-const DRAWER_WIDTH = 220;
+const DRAWER_WIDTH = 224;
+
+const topNavItems = [
+  { label: '계좌', href: '/accounts' },
+];
 
 const bottomNavItems = [
-  { label: '대시보드', href: '/', icon: <DashboardIcon /> },
   { label: '계좌', href: '/accounts', icon: <AccountBalanceIcon /> },
-  { label: '설정', href: '/settings', icon: <SettingsIcon /> },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -36,34 +38,104 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const bottomNavValue = bottomNavItems.findIndex(
-    (item) => item.href === pathname || (item.href !== '/' && pathname.startsWith(item.href))
+    (item) => item.href === pathname || (item.href !== '/' && pathname.startsWith(item.href)),
   );
+
+  function isNavActive(href: string) {
+    return href === pathname || (href !== '/' && pathname.startsWith(href));
+  }
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* 모바일 AppBar */}
+      {/* 상단 AppBar — 항상 표시 */}
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
           zIndex: (t) => t.zIndex.drawer + 1,
-          display: { md: 'none' },
-          backgroundColor: '#1e293b',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          // Mobile: 다크 / Desktop: 글래스모피즘 라이트
+          bgcolor: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          boxShadow: 'none',
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ px: { xs: 2, md: 3 }, minHeight: { xs: 56, md: 64 } }}>
+          {/* Mobile: 햄버거 메뉴 */}
           <IconButton
             color="inherit"
             edge="start"
             onClick={() => setMobileOpen(!mobileOpen)}
-            sx={{ mr: 2 }}
+            sx={{ mr: 1.5, display: { md: 'none' }, color: 'text.secondary' }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap sx={{ fontWeight: 700, letterSpacing: '-0.02em' }}>
+
+          {/* 브랜드 */}
+          <Typography
+            variant="h6"
+            noWrap
+            sx={{
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              fontFamily: '"Manrope", sans-serif',
+              fontSize: '1.1rem',
+              color: 'primary.dark',
+              mr: { md: 4 },
+            }}
+          >
             포트폴리오
           </Typography>
+
+          {/* Desktop 수평 Nav */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'stretch', flexGrow: 1 }}>
+            {topNavItems.map((item) => {
+              const active = isNavActive(item.href);
+              return (
+                <Button
+                  key={item.href}
+                  onClick={() => router.push(item.href)}
+                  disableRipple={false}
+                  sx={{
+                    px: 2,
+                    borderRadius: 0,
+                    minHeight: 64,
+                    color: active ? 'primary.main' : 'text.secondary',
+                    fontWeight: active ? 700 : 400,
+                    fontSize: '0.875rem',
+                    letterSpacing: 0,
+                    borderBottom: active ? '2px solid' : '2px solid transparent',
+                    borderColor: active ? 'primary.main' : 'transparent',
+                    '&:hover': {
+                      bgcolor: 'rgba(67,160,71,0.07)',
+                      color: 'primary.main',
+                    },
+                  }}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
+          </Box>
+
+          <Box sx={{ flexGrow: { xs: 1, md: 0 } }} />
+
+          {/* 아바타 */}
+          <Avatar
+            sx={{
+              width: 34,
+              height: 34,
+              bgcolor: 'primary.main',
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              fontFamily: '"Manrope", sans-serif',
+              cursor: 'pointer',
+              '&:hover': { bgcolor: 'primary.light' },
+            }}
+          >
+            M+J
+          </Avatar>
         </Toolbar>
       </AppBar>
 
@@ -80,15 +152,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           },
         }}
       >
-        <Toolbar sx={{ px: 2.5, minHeight: '64px !important' }}>
-          <Typography
-            variant="h6"
-            noWrap
-            sx={{ fontWeight: 700, color: '#f1f5f9', letterSpacing: '-0.02em' }}
-          >
-            포트폴리오
-          </Typography>
-        </Toolbar>
+        {/* AppBar 높이만큼 공간 */}
+        <Toolbar sx={{ minHeight: '64px !important' }} />
         <Sidebar />
       </Drawer>
 
@@ -111,8 +176,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 2, md: 3 },
-          mt: { xs: 8, md: 0 },
+          p: { xs: 2.5, md: 4 },
+          mt: { xs: 7, md: 8 },
           mb: { xs: 7, md: 0 },
           width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
           minHeight: '100vh',
@@ -133,14 +198,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             right: 0,
             borderTop: '1px solid',
             borderColor: 'divider',
+            bgcolor: 'background.paper',
           }}
         >
           {bottomNavItems.map((item) => (
-            <BottomNavigationAction
-              key={item.href}
-              label={item.label}
-              icon={item.icon}
-            />
+            <BottomNavigationAction key={item.href} label={item.label} icon={item.icon} />
           ))}
         </BottomNavigation>
       )}

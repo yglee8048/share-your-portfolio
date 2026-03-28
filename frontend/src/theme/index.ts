@@ -3,36 +3,44 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2563eb',
-      light: '#3b82f6',
-      dark: '#1d4ed8',
+      main: '#43a047',      // Green 600 — 기존 #0d631b 보다 밝은 파스텔 그린
+      light: '#76d275',     // Green 400
+      dark: '#2e7d32',      // Green 700
+      contrastText: '#ffffff',
     },
     secondary: {
-      main: '#7c3aed',
-    },
-    success: {
-      main: '#16a34a',
-      light: '#dcfce7',
+      main: '#005faf',      // 양수 수익률 (한국 금융 컨벤션 — 상승=파랑)
+      light: '#d4e3ff',
+      dark: '#003567',
+      contrastText: '#ffffff',
     },
     error: {
-      main: '#dc2626',
-      light: '#fee2e2',
+      main: '#ac0c18',      // 음수 수익률 (하락=빨강)
+      light: '#ffdad6',
+    },
+    success: {
+      main: '#43a047',
+      light: '#c8e6c9',
     },
     background: {
-      default: '#f1f5f9',
+      default: '#ffffff',
       paper: '#ffffff',
     },
     text: {
-      primary: '#1e293b',
-      secondary: '#64748b',
+      primary: '#1c2b1c',   // 그린 틴트 다크
+      secondary: '#4a6e4a', // 그린 틴트 미디엄
+      disabled: '#90a890',
     },
-    divider: '#e2e8f0',
+    divider: '#c8e6c9',     // Green 100
   },
   typography: {
     fontFamily: '"Pretendard", "Noto Sans KR", "Roboto", "Helvetica", "Arial", sans-serif',
-    h4: { fontWeight: 700 },
-    h5: { fontWeight: 700 },
-    h6: { fontWeight: 600 },
+    h1: { fontFamily: '"Manrope", "Pretendard", sans-serif', fontWeight: 800 },
+    h2: { fontFamily: '"Manrope", "Pretendard", sans-serif', fontWeight: 800 },
+    h3: { fontFamily: '"Manrope", "Pretendard", sans-serif', fontWeight: 700 },
+    h4: { fontFamily: '"Manrope", "Pretendard", sans-serif', fontWeight: 800 },
+    h5: { fontFamily: '"Manrope", "Pretendard", sans-serif', fontWeight: 700 },
+    h6: { fontFamily: '"Manrope", "Pretendard", sans-serif', fontWeight: 600 },
     subtitle1: { fontWeight: 600 },
   },
   shape: {
@@ -42,8 +50,9 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: '0 1px 3px 0 rgba(0,0,0,0.07), 0 1px 2px -1px rgba(0,0,0,0.07)',
-          borderRadius: 12,
+          boxShadow: '0 2px 8px rgba(67,160,71,0.08)',
+          borderRadius: 16,
+          border: '1px solid #c8e6c9',
         },
       },
     },
@@ -53,33 +62,96 @@ const theme = createTheme({
           textTransform: 'none',
           fontWeight: 600,
           borderRadius: 8,
+          '&.Mui-disabled': {
+            background: '#e0e0e0',
+            color: '#9e9e9e',
+          },
         },
       },
+      variants: [
+        {
+          props: { variant: 'contained', color: 'primary' },
+          style: {
+            background: 'linear-gradient(135deg, #43a047 0%, #66bb6a 100%)',
+            color: '#ffffff',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #2e7d32 0%, #43a047 100%)',
+              color: '#ffffff',
+            },
+          },
+        },
+      ],
     },
     MuiChip: {
       styleOverrides: {
-        root: { fontWeight: 500 },
+        root: { fontWeight: 500, borderRadius: 999 },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#ffffff',
+          borderRadius: 8,
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#c8e6c9',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#43a047',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#43a047',
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: '#4a6e4a',
+          '&.Mui-focused': { color: '#43a047' },
+        },
       },
     },
     MuiTableCell: {
       styleOverrides: {
         head: {
           fontWeight: 600,
-          color: '#64748b',
+          color: '#4a6e4a',
           fontSize: '0.75rem',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          backgroundColor: '#f8fafc',
-          borderBottom: '1px solid #e2e8f0',
+          letterSpacing: '0.02em',
+          backgroundColor: '#e8f5e9',   // Green 50
+          borderBottom: '1px solid #c8e6c9',
+        },
+        body: {
+          borderBottom: '1px solid #e8f5e9',
+        },
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: '#e8f5e9',
+          },
+          '&:last-child td': {
+            borderBottom: 'none',
+          },
         },
       },
     },
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: '#1e293b',
-          color: '#f1f5f9',
-          borderRight: 'none',
+          backgroundColor: '#ffffff',
+          color: '#1c2b1c',
+          borderRight: '1px solid #c8e6c9',
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: '#c8e6c9',
         },
       },
     },
