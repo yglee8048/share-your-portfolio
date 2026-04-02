@@ -1,28 +1,28 @@
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
-import type { Metadata } from 'next';
-import ThemeRegistry from '@/shared/ui/ThemeRegistry';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import Header from '@/components/layout/Header'
+import Sidebar from '@/components/layout/Sidebar'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: '자산 포트폴리오',
-  description: '부부가 함께 자산을 관리하는 포트폴리오 서비스',
-};
+  description: '함께 관리하는 자산 포트폴리오',
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body>
-        <AppRouterCacheProvider>
-          <ThemeRegistry>{children}</ThemeRegistry>
-        </AppRouterCacheProvider>
+      <body className={`${inter.className} bg-brand-50 min-h-screen`}>
+        <Header />
+        <div className="flex min-h-[calc(100vh-3.5rem)]">
+          <Sidebar />
+          <main className="flex-1 p-6 md:p-8 max-w-3xl">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
-  );
+  )
 }

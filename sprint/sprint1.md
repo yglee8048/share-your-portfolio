@@ -317,9 +317,6 @@
     "label": "국내주식"
   },
   "currency": "KRW",
-  "average_buy_price": 72000,
-  "quantity": 100,
-  "current_price": 78500,
   "principal_value": 7200000,
   "current_value": 7850000,
   "unrealized_gain": 650000,
@@ -327,20 +324,17 @@
 }
 ```
 
-| 필드                | 타입        | 설명                                                              |
-|-------------------|-----------|-----------------------------------------------------------------|
-| id                | string    | UUID                                                            |
-| accountId         | string    | 소속 계좌 UUID                                                      |
-| asset_name        | string    | 종목명                                                             |
-| asset_type        | CodeLabel | 자산 유형                                                           |
-| currency          | string    | 보유 통화                                                           |
-| average_buy_price | number    | 매수 평균가                                                          |
-| quantity          | number    | 수량                                                              |
-| current_price     | number?   | 현재가 (미입력 시 null)                                                |
-| principal_value   | number    | 원금 (`averageBuyPrice × quantity`)                               |
-| current_value     | number?   | 현재 가치 (`currentPrice × quantity`, currentPrice 없으면 null)        |
-| unrealized_gain   | number?   | 평가 손익 (`currentValue - principalAmount`, currentPrice 없으면 null) |
-| profit_rate       | number?   | 수익률 (%, currentPrice 없으면 null)                                  |
+| 필드               | 타입        | 설명                                             |
+|------------------|-----------|------------------------------------------------|
+| id               | string    | UUID                                           |
+| account_id       | string    | 소속 계좌 UUID                                     |
+| asset_name       | string    | 종목명                                            |
+| asset_type       | CodeLabel | 자산 유형                                          |
+| currency         | string    | 보유 통화                                          |
+| principal_value | number    | 매입금액 (직접 입력)                                   |
+| current_value    | number?   | 평가금액 (직접 입력, 미입력 시 null)                       |
+| unrealized_gain  | number?   | 평가손익 (`current_value - principal_value`, null 가능) |
+| profit_rate      | number?   | 수익률 (%, `current_value` 없으면 null)               |
 
 ---
 
@@ -360,22 +354,20 @@
   "name": "삼성전자",
   "asset_type_code": "DOMESTIC_STOCK",
   "currency": "KRW",
-  "average_buy_price": 75000,
-  "quantity": 10,
-  "current_price": 80000
+  "principal_value": 7200000,
+  "current_value": 7850000
 }
 ```
 
-| 필드                | 필수 | 설명                         |
-|-------------------|----|----------------------------|
-| name              | ✓  | 종목명                        |
-| asset_type_code   | ✓  | `/api/meta/asset-types` 코드 |
-| currency          | ✓  | 보유 통화                      |
-| average_buy_price | ✓  | 매수 평균가                     |
-| quantity          | ✓  | 수량                         |
-| current_price     | -  | 현재가 (없으면 수익률 계산 불가)        |
+| 필드               | 필수 | 설명                         |
+|------------------|-----|----------------------------|
+| name             | ✓   | 종목명                        |
+| asset_type_code  | ✓   | `/api/meta/asset-types` 코드 |
+| currency         | ✓   | 보유 통화                      |
+| principal_value | ✓   | 매입금액                       |
+| current_value    | -   | 평가금액 (없으면 수익률 계산 불가)       |
 
-**Response 201**: 생성된 `Holding` 객체 (계산 필드 포함)
+**Response 201**: 생성된 `Holding` 객체
 **Response 404**: `{ "error": "계좌를 찾을 수 없습니다." }`
 
 ---
