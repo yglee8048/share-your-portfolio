@@ -1,8 +1,6 @@
 package com.yg.share_your_portfolio.api_server.domain.vo
 
-enum class AccountType(
-    val label: String,
-) {
+enum class AccountType(val label: String) {
     DEMAND_DEPOSIT("입출금"),
     SUBSCRIPTION_ACCOUNT("청약통장"),
     CMA("CMA"),
@@ -12,5 +10,4 @@ enum class AccountType(
     VARIABLE_ANNUITY("변액연금보험"),
     DC("DC"),
     DB("DB"),
-    ;
 }

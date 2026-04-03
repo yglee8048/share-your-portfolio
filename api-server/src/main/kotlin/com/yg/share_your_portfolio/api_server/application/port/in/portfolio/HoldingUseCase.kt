@@ -6,6 +6,26 @@ import com.yg.share_your_portfolio.api_server.domain.portfolio.Holding
 import com.yg.share_your_portfolio.api_server.domain.vo.AssetType
 import java.math.BigDecimal
 
+interface HoldingUseCase {
+    fun getHoldings(accountId: AccountId): List<Holding>
+
+    fun createHolding(
+        accountId: AccountId,
+        command: CreateHoldingCommand,
+    ): Holding
+
+    fun updateHolding(
+        accountId: AccountId,
+        holdingId: HoldingId,
+        command: UpdateHoldingCommand,
+    ): Holding
+
+    fun deleteHolding(
+        accountId: AccountId,
+        holdingId: HoldingId,
+    )
+}
+
 data class CreateHoldingCommand(
     val name: String,
     val assetType: AssetType,
@@ -21,10 +41,3 @@ data class UpdateHoldingCommand(
     val principalValue: BigDecimal,
     val currentValue: BigDecimal?,
 )
-
-interface HoldingUseCase {
-    fun getHoldings(accountId: AccountId): List<Holding>
-    fun createHolding(accountId: AccountId, command: CreateHoldingCommand): Holding
-    fun updateHolding(accountId: AccountId, holdingId: HoldingId, command: UpdateHoldingCommand): Holding
-    fun deleteHolding(accountId: AccountId, holdingId: HoldingId)
-}

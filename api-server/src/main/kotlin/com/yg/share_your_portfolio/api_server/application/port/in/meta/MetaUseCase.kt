@@ -7,7 +7,10 @@ import com.yg.share_your_portfolio.api_server.domain.vo.Institution
 
 interface MetaUseCase {
     fun getInstitutions(): List<Institution>
+
     fun getAccountTypes(): List<AccountType>
+
     fun getAssetTypes(): List<AssetType>
+    
     fun searchAssets(query: String): List<Asset>
 }

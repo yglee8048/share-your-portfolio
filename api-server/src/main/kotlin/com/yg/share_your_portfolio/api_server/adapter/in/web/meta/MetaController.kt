@@ -10,23 +10,22 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/meta")
-class MetaController(private val metaUseCase: MetaUseCase) {
+internal class MetaController(private val metaUseCase: MetaUseCase) {
+    @GetMapping("/institutions", version = "v1")
+    internal fun getInstitutions(): List<CodeLabelResponse> = metaUseCase.getInstitutions()
+        .map { CodeLabelResponse(it.name, it.label) }
 
-    @GetMapping("/institutions")
-    fun getInstitutions(): List<CodeLabelResponse> =
-        metaUseCase.getInstitutions().map { CodeLabelResponse(it.name, it.label) }
+    @GetMapping("/account-types", version = "v1")
+    internal fun getAccountTypes(): List<CodeLabelResponse> = metaUseCase.getAccountTypes()
+        .map { CodeLabelResponse(it.name, it.label) }
 
-    @GetMapping("/account-types")
-    fun getAccountTypes(): List<CodeLabelResponse> =
-        metaUseCase.getAccountTypes().map { CodeLabelResponse(it.name, it.label) }
+    @GetMapping("/asset-types", version = "v1")
+    internal fun getAssetTypes(): List<CodeLabelResponse> = metaUseCase.getAssetTypes()
+        .map { CodeLabelResponse(it.name, it.label) }
 
-    @GetMapping("/asset-types")
-    fun getAssetTypes(): List<CodeLabelResponse> =
-        metaUseCase.getAssetTypes().map { CodeLabelResponse(it.name, it.label) }
-
-    @GetMapping("/assets")
-    fun searchAssets(@RequestParam q: String): List<AssetSearchResponse> =
-        metaUseCase.searchAssets(q).map {
+    @GetMapping("/assets", version = "v1")
+    internal fun searchAssets(@RequestParam q: String): List<AssetSearchResponse> = metaUseCase.searchAssets(q)
+        .map {
             AssetSearchResponse(
                 name = it.name,
                 assetTypeCode = it.type.name,

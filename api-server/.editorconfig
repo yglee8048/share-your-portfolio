@@ -1,0 +1,17 @@
+root = true
+
+[*.{kt,kts}]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+max_line_length = 120
+trim_trailing_whitespace = true
+
+# ktlint trailing comma 규칙
+ktlint_standard_trailing-comma-on-call-site = always
+ktlint_standard_trailing-comma-on-declaration-site = always
+
+# 프로젝트 패키지명이 underscore를 포함하므로 비활성화
+ktlint_standard_package-name = disabled

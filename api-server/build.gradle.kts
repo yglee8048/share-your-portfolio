@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.spring") version "2.2.21"
     id("org.springframework.boot") version "4.0.4"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.spotless") version "7.0.3"
 }
 
 group = "com.yg.share-your-portfolio"
@@ -64,4 +65,30 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+spotless {
+    kotlin {
+        ktlint("1.5.0")
+            .editorConfigOverride(
+                mapOf(
+                    "ktlint_standard_trailing-comma-on-call-site" to "always",
+                    "ktlint_standard_trailing-comma-on-declaration-site" to "always",
+                    "ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than" to "2",
+                    "ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than" to "2",
+                    "ktlint_standard_package-name" to "disabled",
+                    "ktlint_standard_no-wildcard-imports" to "disabled",
+                ),
+            )
+        target("src/**/*.kt")
+    }
+    kotlinGradle {
+        ktlint("1.5.0")
+            .editorConfigOverride(
+                mapOf(
+                    "ktlint_standard_package-name" to "disabled",
+                ),
+            )
+        target("*.gradle.kts")
+    }
 }

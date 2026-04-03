@@ -5,7 +5,7 @@ import org.springframework.data.relational.core.mapping.Table
 import java.math.BigDecimal
 
 @Table("holdings")
-data class HoldingEntity(
+internal data class HoldingEntity(
     @Id val id: Long? = null,
     val accountId: Long,
     val assetName: String,

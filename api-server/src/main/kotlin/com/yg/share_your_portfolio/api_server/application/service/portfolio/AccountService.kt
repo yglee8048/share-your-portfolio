@@ -15,27 +15,31 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 @Service
-@Transactional
-class AccountService(
+internal class AccountService(
     private val accountPort: AccountPort,
     private val holdingPort: HoldingPort,
 ) : AccountUseCase {
 
-    override fun getAccounts(): List<AccountSummary> =
-        accountPort.findAll().map { account ->
-            toSummary(account, holdingPort.findByAccountId(account.id))
-        }
+    @Transactional(readOnly = true)
+    override fun getAccounts(): List<AccountSummary> {
+        return accountPort.findAll()
+            .map { account ->
+                toSummary(account, holdingPort.findByAccountId(account.id))
+            }
+    }
 
+    @Transactional(readOnly = true)
     override fun getAccount(id: AccountId): AccountSummary {
         val account = accountPort.findById(id) ?: throw NoSuchElementException("계좌를 찾을 수 없습니다.")
         return toSummary(account, holdingPort.findByAccountId(id))
     }
 
+    @Transactional
     override fun createAccount(command: CreateAccountCommand): AccountSummary {
         val account = Account(
             id = AccountId(0L),
             institution = command.institution,
-            accountNumber = maskAccountNumber(command.accountNumber),
+            accountNumber = command.accountNumber,
             type = command.accountType,
             name = command.accountName,
         )
@@ -43,12 +47,16 @@ class AccountService(
         return toSummary(saved, emptyList())
     }
 
-    override fun updateAccount(id: AccountId, command: UpdateAccountCommand): AccountSummary {
+    @Transactional
+    override fun updateAccount(
+        id: AccountId,
+        command: UpdateAccountCommand,
+    ): AccountSummary {
         accountPort.findById(id) ?: throw NoSuchElementException("계좌를 찾을 수 없습니다.")
         val updated = Account(
             id = id,
             institution = command.institution,
-            accountNumber = maskAccountNumber(command.accountNumber),
+            accountNumber = command.accountNumber,
             type = command.accountType,
             name = command.accountName,
         )
@@ -56,18 +64,17 @@ class AccountService(
         return toSummary(saved, holdingPort.findByAccountId(id))
     }
 
+    @Transactional
     override fun deleteAccount(id: AccountId) {
         accountPort.findById(id) ?: throw NoSuchElementException("계좌를 찾을 수 없습니다.")
         holdingPort.deleteByAccountId(id)
         accountPort.delete(id)
     }
 
-    private fun maskAccountNumber(accountNumber: String): String {
-        val last4 = accountNumber.takeLast(4)
-        return "****-****-$last4"
-    }
-
-    private fun toSummary(account: Account, holdings: List<Holding>): AccountSummary {
+    private fun toSummary(
+        account: Account,
+        holdings: List<Holding>,
+    ): AccountSummary {
         val principalKrw = holdings.sumOf { it.principalValue }
         val currentValueKrw = holdings.sumOf { it.currentValue ?: it.principalValue }
         val profitRate = if (principalKrw > BigDecimal.ZERO) {

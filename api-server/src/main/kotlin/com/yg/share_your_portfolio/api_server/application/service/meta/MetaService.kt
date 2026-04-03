@@ -9,7 +9,7 @@ import com.yg.share_your_portfolio.api_server.domain.vo.Institution
 import org.springframework.stereotype.Service
 
 @Service
-class MetaService : MetaUseCase {
+internal class MetaService : MetaUseCase {
 
     override fun getInstitutions(): List<Institution> = Institution.entries
 
@@ -17,8 +17,7 @@ class MetaService : MetaUseCase {
 
     override fun getAssetTypes(): List<AssetType> = AssetType.entries
 
-    override fun searchAssets(query: String): List<Asset> =
-        AssetHolders.assets
-            .filter { it.name.contains(query, ignoreCase = true) }
-            .take(10)
+    override fun searchAssets(query: String): List<Asset> = AssetHolders.assets
+        .filter { it.name.contains(query, ignoreCase = true) }
+        .take(10)
 }

@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 
 @Table("accounts")
-data class AccountEntity(
+internal data class AccountEntity(
     @Id val id: Long? = null,
     val institution: String,
     val accountNumber: String,

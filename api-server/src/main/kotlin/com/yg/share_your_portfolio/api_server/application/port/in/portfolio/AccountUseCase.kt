@@ -6,6 +6,21 @@ import com.yg.share_your_portfolio.api_server.domain.vo.AccountType
 import com.yg.share_your_portfolio.api_server.domain.vo.Institution
 import java.math.BigDecimal
 
+interface AccountUseCase {
+    fun getAccounts(): List<AccountSummary>
+    
+    fun getAccount(id: AccountId): AccountSummary
+
+    fun createAccount(command: CreateAccountCommand): AccountSummary
+
+    fun updateAccount(
+        id: AccountId,
+        command: UpdateAccountCommand,
+    ): AccountSummary
+
+    fun deleteAccount(id: AccountId)
+}
+
 data class AccountSummary(
     val account: Account,
     val holdingsCount: Int,
@@ -27,11 +42,3 @@ data class UpdateAccountCommand(
     val accountType: AccountType,
     val accountName: String,
 )
-
-interface AccountUseCase {
-    fun getAccounts(): List<AccountSummary>
-    fun getAccount(id: AccountId): AccountSummary
-    fun createAccount(command: CreateAccountCommand): AccountSummary
-    fun updateAccount(id: AccountId, command: UpdateAccountCommand): AccountSummary
-    fun deleteAccount(id: AccountId)
-}

@@ -9,13 +9,9 @@ class Account(
     val institution: Institution,
     val accountNumber: String,
     val type: AccountType,
-    name: String,
+    val name: String,
 ) {
-    var name: String = name
-        private set
-
-    fun changeName(name: String) {
+    init {
         require(name.isNotBlank()) { "이름은 공백일 수 없습니다." }
-        this.name = name
     }
 }
