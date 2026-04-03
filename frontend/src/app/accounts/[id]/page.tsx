@@ -8,12 +8,13 @@ import {
   deleteAccount,
   deleteHolding,
 } from '@/lib/api'
-import { formatKRW, formatRate, getRateColor } from '@/lib/utils'
+import { formatKRW, formatRate, getRateColor, getExposureLabel } from '@/lib/utils'
 import type { Account, Holding } from '@/types'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import { Pencil, Trash2 } from 'lucide-react'
 
 export default function AccountDetailPage() {
   const router = useRouter()
@@ -98,26 +99,28 @@ export default function AccountDetailPage() {
             </p>
             <p className="text-xs text-gray-400">{account.account_number}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <Button
               variant="secondary"
               size="sm"
               onClick={() => router.push(`/accounts/${id}/edit`)}
+              title="수정"
             >
-              수정
+              <Pencil size={14} />
             </Button>
             <Button
               variant="danger"
               size="sm"
               onClick={handleDeleteAccount}
+              title="삭제"
             >
-              삭제
+              <Trash2 size={14} />
             </Button>
           </div>
         </div>
 
         {/* Account Summary */}
-        <div className="mt-4 pt-4 border-t border-brand-50 grid grid-cols-3 gap-4">
+        <div className="mt-4 pt-4 border-t border-brand-50 grid grid-cols-4 gap-4">
           <div>
             <p className="text-xs text-gray-400">평가금액</p>
             <p className="text-sm font-semibold text-gray-800 mt-0.5">
@@ -128,6 +131,17 @@ export default function AccountDetailPage() {
             <p className="text-xs text-gray-400">원금</p>
             <p className="text-sm font-semibold text-gray-800 mt-0.5">
               {formatKRW(account.principal_krw)}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400">손익</p>
+            <p
+              className={`text-sm font-semibold mt-0.5 ${
+                totalGain >= 0 ? 'text-emerald-500' : 'text-rose-400'
+              }`}
+            >
+              {totalGain >= 0 ? '+' : ''}
+              {formatKRW(totalGain)}
             </p>
           </div>
           <div>
@@ -169,32 +183,36 @@ export default function AccountDetailPage() {
         </div>
       ) : (
         <>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {holdings.map((holding) => (
-              <Card key={holding.id}>
-                <div className="space-y-3">
-                  {/* Top Row */}
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-gray-800">
+              <Card key={holding.id} className="!p-3">
+                <div className="space-y-1.5">
+                  {/* Row 1: 종목명 + 배지 | 수익률 + 버튼 */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                      <span className="font-semibold text-gray-800 text-sm">
                         {holding.asset_name}
                       </span>
                       <Badge>{holding.asset_type.label}</Badge>
-                      <span className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                        {holding.currency}
+                      <span className="text-xs text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded-full">
+                        {getExposureLabel(holding.currency_exposure)}
                       </span>
                     </div>
-                    <div className="flex gap-1.5 shrink-0 ml-2">
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {holding.profit_rate !== null && (
+                        <span className={`text-sm font-semibold ${getRateColor(holding.profit_rate)}`}>
+                          {formatRate(holding.profit_rate)}
+                        </span>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          router.push(
-                            `/accounts/${id}/holdings/${holding.id}/edit`
-                          )
+                          router.push(`/accounts/${id}/holdings/${holding.id}/edit`)
                         }
+                        title="수정"
                       >
-                        수정
+                        <Pencil size={13} />
                       </Button>
                       <Button
                         variant="danger"
@@ -202,87 +220,43 @@ export default function AccountDetailPage() {
                         onClick={() =>
                           handleDeleteHolding(holding.id, holding.asset_name)
                         }
+                        title="삭제"
                       >
-                        삭제
+                        <Trash2 size={13} />
                       </Button>
                     </div>
                   </div>
 
-                  {/* Detail Row */}
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p className="text-xs text-gray-400">매입금액</p>
-                      <p className="text-gray-700 mt-0.5">
-                        {formatKRW(holding.principal_value)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">평가금액</p>
-                      <p className="text-gray-700 mt-0.5">
+                  {/* Row 2: 매입 | 평가 | 손익 인라인 */}
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <span>
+                      매입{' '}
+                      <span className="text-gray-700">{formatKRW(holding.principal_value)}</span>
+                    </span>
+                    <span className="text-gray-200">|</span>
+                    <span>
+                      평가{' '}
+                      <span className="text-gray-700">
                         {holding.current_value !== null ? formatKRW(holding.current_value) : '–'}
-                      </p>
-                    </div>
+                      </span>
+                    </span>
+                    {holding.unrealized_gain !== null && (
+                      <>
+                        <span className="text-gray-200">|</span>
+                        <span>
+                          손익{' '}
+                          <span className={`font-medium ${getRateColor(holding.unrealized_gain)}`}>
+                            {holding.unrealized_gain >= 0 ? '+' : ''}
+                            {formatKRW(holding.unrealized_gain)}
+                          </span>
+                        </span>
+                      </>
+                    )}
                   </div>
-
-                  {/* Gain Row */}
-                  {holding.unrealized_gain !== null && (
-                    <div className="flex items-center justify-between pt-2 border-t border-brand-50">
-                      <div>
-                        <p className="text-xs text-gray-400">평가손익</p>
-                        <p
-                          className={`text-sm font-semibold ${getRateColor(
-                            holding.unrealized_gain
-                          )}`}
-                        >
-                          {holding.unrealized_gain >= 0 ? '+' : ''}
-                          {formatKRW(holding.unrealized_gain)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-400">수익률</p>
-                        <p
-                          className={`text-sm font-semibold ${getRateColor(
-                            holding.profit_rate
-                          )}`}
-                        >
-                          {formatRate(holding.profit_rate)}
-                        </p>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </Card>
             ))}
           </div>
-
-          {/* Holdings Summary */}
-          <Card className="bg-brand-50 border-brand-100">
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <p className="text-xs text-gray-400">총 평가금액</p>
-                <p className="text-sm font-semibold text-gray-800 mt-0.5">
-                  {formatKRW(totalValue)}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400">총 매입금액</p>
-                <p className="text-sm font-semibold text-gray-800 mt-0.5">
-                  {formatKRW(totalPrincipal)}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400">총 손익</p>
-                <p
-                  className={`text-sm font-semibold mt-0.5 ${
-                    totalGain >= 0 ? 'text-emerald-500' : 'text-rose-400'
-                  }`}
-                >
-                  {totalGain >= 0 ? '+' : ''}
-                  {formatKRW(totalGain)}
-                </p>
-              </div>
-            </div>
-          </Card>
         </>
       )}
     </div>

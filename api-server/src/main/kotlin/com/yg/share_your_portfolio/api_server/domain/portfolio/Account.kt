@@ -5,10 +5,10 @@ import com.yg.share_your_portfolio.api_server.domain.vo.AccountType
 import com.yg.share_your_portfolio.api_server.domain.vo.Institution
 
 class Account(
-    val accountId: AccountId,
+    val id: AccountId,
     val institution: Institution,
     val accountNumber: String,
-    val accountType: AccountType,
+    val type: AccountType,
     name: String,
 ) {
     var name: String = name

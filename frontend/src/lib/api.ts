@@ -1,5 +1,6 @@
 import type {
   CodeLabel,
+  AssetMeta,
   Account,
   Holding,
   CreateAccountRequest,
@@ -52,6 +53,11 @@ export function getAccountTypes(): Promise<CodeLabel[]> {
 export function getAssetTypes(): Promise<CodeLabel[]> {
   if (USE_MOCK) return mockStore.getAssetTypes()
   return fetchAPI<CodeLabel[]>('/api/meta/asset-types')
+}
+
+export function searchAssets(query: string): Promise<AssetMeta[]> {
+  if (USE_MOCK) return mockStore.searchAssets(query)
+  return fetchAPI<AssetMeta[]>(`/api/meta/assets?q=${encodeURIComponent(query)}`)
 }
 
 // Accounts

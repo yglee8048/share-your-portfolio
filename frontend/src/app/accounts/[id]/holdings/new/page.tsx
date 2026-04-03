@@ -1,56 +1,46 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { getAssetTypes, createHolding } from '@/lib/api'
-import type { CodeLabel } from '@/types'
+import { createHolding } from '@/lib/api'
+import type { AssetMeta } from '@/types'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
-
-const CURRENCY_OPTIONS = [
-  { value: 'KRW', label: 'KRW (원)' },
-  { value: 'USD', label: 'USD (달러)' },
-  { value: 'JPY', label: 'JPY (엔)' },
-  { value: 'EUR', label: 'EUR (유로)' },
-]
+import AssetAutocomplete from '@/components/ui/AssetAutocomplete'
+import { getExposureLabel } from '@/lib/utils'
 
 export default function NewHoldingPage() {
   const router = useRouter()
   const params = useParams()
   const accountId = params.id as string
 
-  const [assetTypes, setAssetTypes] = useState<CodeLabel[]>([])
   const [loading, setLoading] = useState(false)
-  const [metaLoading, setMetaLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const [query, setQuery] = useState('')
+  const [selectedAsset, setSelectedAsset] = useState<AssetMeta | null>(null)
   const [form, setForm] = useState({
-    name: '',
-    asset_type_code: '',
-    currency: 'KRW',
     principal_value: '',
     current_value: '',
   })
-
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  useEffect(() => {
-    getAssetTypes()
-      .then((types) => {
-        setAssetTypes(types)
-        if (types.length > 0) setForm((f) => ({ ...f, asset_type_code: types[0].code }))
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setMetaLoading(false))
-  }, [])
+  function handleSelectAsset(asset: AssetMeta) {
+    setSelectedAsset(asset)
+    setErrors((e) => ({ ...e, asset: '' }))
+  }
+
+  function handleQueryChange(q: string) {
+    setQuery(q)
+    if (selectedAsset && q !== selectedAsset.name) {
+      setSelectedAsset(null)
+    }
+  }
 
   function validate() {
     const newErrors: Record<string, string> = {}
-    if (!form.name.trim()) newErrors.name = '종목명을 입력해주세요.'
-    if (!form.asset_type_code) newErrors.asset_type_code = '자산 유형을 선택해주세요.'
-    if (!form.currency) newErrors.currency = '통화를 선택해주세요.'
+    if (!selectedAsset) newErrors.asset = '종목을 검색하여 선택해주세요.'
     if (!form.principal_value || isNaN(Number(form.principal_value)) || Number(form.principal_value) < 0) {
       newErrors.principal_value = '올바른 매입금액을 입력해주세요.'
     }
@@ -71,9 +61,9 @@ export default function NewHoldingPage() {
     setError(null)
     try {
       await createHolding(accountId, {
-        name: form.name,
-        asset_type_code: form.asset_type_code,
-        currency: form.currency,
+        name: selectedAsset!.name,
+        asset_type_code: selectedAsset!.asset_type_code,
+        currency_exposure: selectedAsset!.currency_exposure,
         principal_value: Number(form.principal_value),
         ...(form.current_value ? { current_value: Number(form.current_value) } : {}),
       })
@@ -98,76 +88,71 @@ export default function NewHoldingPage() {
       </div>
 
       <Card>
-        {metaLoading ? (
-          <p className="text-sm text-gray-400 text-center py-8">불러오는 중...</p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              label="종목명"
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="예: 삼성전자, 카카오뱅크 예금"
-              error={errors.name}
-            />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <AssetAutocomplete
+            label="종목명"
+            value={query}
+            onChange={handleQueryChange}
+            onSelect={handleSelectAsset}
+            onClear={() => { setQuery(''); setSelectedAsset(null) }}
+            error={errors.asset}
+          />
 
-            <Select
-              label="자산 유형"
-              value={form.asset_type_code}
-              onChange={(e) => setForm((f) => ({ ...f, asset_type_code: e.target.value }))}
-              options={assetTypes.map((t) => ({ value: t.code, label: t.label }))}
-              placeholder="자산 유형을 선택하세요"
-              error={errors.asset_type_code}
-            />
-
-            <Select
-              label="통화"
-              value={form.currency}
-              onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))}
-              options={CURRENCY_OPTIONS}
-              error={errors.currency}
-            />
-
-            <Input
-              label="매입금액"
-              type="number"
-              value={form.principal_value}
-              onChange={(e) => setForm((f) => ({ ...f, principal_value: e.target.value }))}
-              placeholder="0"
-              min="0"
-              step="any"
-              error={errors.principal_value}
-            />
-
-            <Input
-              label="평가금액 (선택사항)"
-              type="number"
-              value={form.current_value}
-              onChange={(e) => setForm((f) => ({ ...f, current_value: e.target.value }))}
-              placeholder="입력하지 않으면 수익률을 계산할 수 없습니다"
-              min="0"
-              step="any"
-              error={errors.current_value}
-            />
-
-            {error && (
-              <p className="text-sm text-rose-500 bg-rose-50 rounded-xl px-4 py-3">{error}</p>
-            )}
-
-            <div className="flex gap-3 pt-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => router.push(`/accounts/${accountId}`)}
-                className="flex-1"
-              >
-                취소
-              </Button>
-              <Button type="submit" variant="primary" disabled={loading} className="flex-1">
-                {loading ? '저장 중...' : '종목 추가'}
-              </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">자산 유형</label>
+              <div className="w-full rounded-xl border border-brand-100 bg-gray-50 px-3 py-3 text-sm text-gray-500 min-h-[46px]">
+                {selectedAsset ? selectedAsset.asset_type_label : <span className="text-gray-300">자동 입력</span>}
+              </div>
             </div>
-          </form>
-        )}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">환노출 여부</label>
+              <div className="w-full rounded-xl border border-brand-100 bg-gray-50 px-3 py-3 text-sm text-gray-500 min-h-[46px]">
+                {selectedAsset ? getExposureLabel(selectedAsset.currency_exposure) : <span className="text-gray-300">자동 입력</span>}
+              </div>
+            </div>
+          </div>
+
+          <Input
+            label="매입금액"
+            type="number"
+            value={form.principal_value}
+            onChange={(e) => setForm((f) => ({ ...f, principal_value: e.target.value }))}
+            placeholder="0"
+            min="0"
+            step="any"
+            error={errors.principal_value}
+          />
+
+          <Input
+            label="평가금액 (선택사항)"
+            type="number"
+            value={form.current_value}
+            onChange={(e) => setForm((f) => ({ ...f, current_value: e.target.value }))}
+            placeholder="입력하지 않으면 수익률을 계산할 수 없습니다"
+            min="0"
+            step="any"
+            error={errors.current_value}
+          />
+
+          {error && (
+            <p className="text-sm text-rose-500 bg-rose-50 rounded-xl px-4 py-3">{error}</p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => router.push(`/accounts/${accountId}`)}
+              className="flex-1"
+            >
+              취소
+            </Button>
+            <Button type="submit" variant="primary" disabled={loading} className="flex-1">
+              {loading ? '저장 중...' : '종목 추가'}
+            </Button>
+          </div>
+        </form>
       </Card>
     </div>
   )

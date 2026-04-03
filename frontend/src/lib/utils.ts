@@ -18,3 +18,7 @@ export function getRateColor(rate: number | null): string {
 export function formatNumber(n: number): string {
   return n.toLocaleString('ko-KR')
 }
+
+export function getExposureLabel(currencyExposure: boolean): string {
+  return currencyExposure ? '환노출Y' : '환노출N'
+}

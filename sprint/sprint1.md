@@ -32,17 +32,6 @@
 }
 ```
 
-### `Money`
-
-백엔드 금액 응답 공통 형태.
-
-```json
-{
-  "currency": "KRW",
-  "amount": 20000
-}
-```
-
 ---
 
 ## API 명세
@@ -210,6 +199,44 @@
 
 ---
 
+### `GET /api/meta/assets?q={query}` — 자산 검색 (자동완성)
+
+종목명으로 검색하여 자산 메타 정보 목록을 반환한다. 종목 등록/수정 폼의 자동완성에 사용.
+
+**Query Parameters**
+
+| 파라미터 | 필수 | 설명                     |
+|--------|-----|------------------------|
+| q      | ✓   | 검색어 (종목명 부분 일치, 최대 10건) |
+
+**Response 200**
+
+```json
+[
+  {
+    "name": "삼성전자",
+    "asset_type_code": "DOMESTIC_STOCK",
+    "asset_type_label": "국내주식",
+    "currency_exposure": false
+  },
+  {
+    "name": "Apple (AAPL)",
+    "asset_type_code": "FOREIGN_STOCK",
+    "asset_type_label": "해외주식",
+    "currency_exposure": true
+  }
+]
+```
+
+| 필드                | 타입     | 설명                                  |
+|-------------------|--------|-------------------------------------|
+| name              | string | 종목명                                 |
+| asset_type_code   | string | 자산 유형 코드                            |
+| asset_type_label  | string | 자산 유형 표시명                           |
+| currency_exposure | boolean | 환노출 여부 (true = 환노출Y, false = 환노출N) |
+
+---
+
 ## 계좌
 
 ### 계좌 응답 객체 (`Account`)
@@ -316,7 +343,7 @@
     "code": "DOMESTIC_STOCK",
     "label": "국내주식"
   },
-  "currency": "KRW",
+  "currency_exposure": false,
   "principal_value": 7200000,
   "current_value": 7850000,
   "unrealized_gain": 650000,
@@ -324,17 +351,17 @@
 }
 ```
 
-| 필드               | 타입        | 설명                                             |
-|------------------|-----------|------------------------------------------------|
-| id               | string    | UUID                                           |
-| account_id       | string    | 소속 계좌 UUID                                     |
-| asset_name       | string    | 종목명                                            |
-| asset_type       | CodeLabel | 자산 유형                                          |
-| currency         | string    | 보유 통화                                          |
-| principal_value | number    | 매입금액 (직접 입력)                                   |
-| current_value    | number?   | 평가금액 (직접 입력, 미입력 시 null)                       |
-| unrealized_gain  | number?   | 평가손익 (`current_value - principal_value`, null 가능) |
-| profit_rate      | number?   | 수익률 (%, `current_value` 없으면 null)               |
+| 필드                | 타입        | 설명                                                |
+|-------------------|-----------|---------------------------------------------------|
+| id                | string    | UUID                                              |
+| account_id        | string    | 소속 계좌 UUID                                        |
+| asset_name        | string    | 종목명                                               |
+| asset_type        | CodeLabel | 자산 유형                                             |
+| currency_exposure | boolean   | 환노출 여부 (true = 환노출Y, false = 환노출N)                |
+| principal_value   | number    | 매입금액 (직접 입력)                                      |
+| current_value     | number?   | 평가금액 (직접 입력, 미입력 시 null)                          |
+| unrealized_gain   | number?   | 평가손익 (`current_value - principal_value`, null 가능) |
+| profit_rate       | number?   | 수익률 (%, `current_value` 없으면 null)                 |
 
 ---
 
@@ -353,19 +380,19 @@
 {
   "name": "삼성전자",
   "asset_type_code": "DOMESTIC_STOCK",
-  "currency": "KRW",
+  "currency_exposure": false,
   "principal_value": 7200000,
   "current_value": 7850000
 }
 ```
 
-| 필드               | 필수 | 설명                         |
-|------------------|-----|----------------------------|
-| name             | ✓   | 종목명                        |
-| asset_type_code  | ✓   | `/api/meta/asset-types` 코드 |
-| currency         | ✓   | 보유 통화                      |
-| principal_value | ✓   | 매입금액                       |
-| current_value    | -   | 평가금액 (없으면 수익률 계산 불가)       |
+| 필드                | 필수 | 설명                                  |
+|-------------------|----|-------------------------------------|
+| name              | ✓  | 종목명                                 |
+| asset_type_code   | ✓  | `/api/meta/asset-types` 코드          |
+| currency_exposure | ✓  | 환노출 여부 (true = 환노출Y, false = 환노출N) |
+| principal_value   | ✓  | 매입금액                                |
+| current_value     | -  | 평가금액 (없으면 수익률 계산 불가)               |
 
 **Response 201**: 생성된 `Holding` 객체
 **Response 404**: `{ "error": "계좌를 찾을 수 없습니다." }`

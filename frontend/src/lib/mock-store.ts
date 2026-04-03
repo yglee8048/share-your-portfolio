@@ -1,4 +1,4 @@
-import type { Account, Holding, CodeLabel } from '@/types'
+import type { Account, Holding, CodeLabel, AssetMeta } from '@/types'
 
 function uuid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36)
@@ -30,6 +30,46 @@ export const ACCOUNT_TYPES: CodeLabel[] = [
   { code: 'DB', label: 'DB' },
 ]
 
+export const ASSETS: AssetMeta[] = [
+  // 국내주식
+  { name: '삼성전자', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: 'SK하이닉스', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: 'LG에너지솔루션', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: '삼성바이오로직스', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: '현대차', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: '카카오', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: '네이버', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: 'POSCO홀딩스', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: 'KB금융', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: '신한지주', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  // 해외주식 (직접 해외 매수 → 환노출)
+  { name: 'Apple (AAPL)', asset_type_code: 'FOREIGN_STOCK', asset_type_label: '해외주식', currency_exposure: true },
+  { name: 'Microsoft (MSFT)', asset_type_code: 'FOREIGN_STOCK', asset_type_label: '해외주식', currency_exposure: true },
+  { name: 'NVIDIA (NVDA)', asset_type_code: 'FOREIGN_STOCK', asset_type_label: '해외주식', currency_exposure: true },
+  { name: 'Amazon (AMZN)', asset_type_code: 'FOREIGN_STOCK', asset_type_label: '해외주식', currency_exposure: true },
+  { name: 'Alphabet (GOOGL)', asset_type_code: 'FOREIGN_STOCK', asset_type_label: '해외주식', currency_exposure: true },
+  { name: 'Meta (META)', asset_type_code: 'FOREIGN_STOCK', asset_type_label: '해외주식', currency_exposure: true },
+  { name: 'Tesla (TSLA)', asset_type_code: 'FOREIGN_STOCK', asset_type_label: '해외주식', currency_exposure: true },
+  // 국내 ETF (KRW 매매 → 환비노출)
+  { name: 'TIGER 미국S&P500', asset_type_code: 'FOREIGN_STOCK', asset_type_label: '해외주식', currency_exposure: false },
+  { name: 'TIGER 미국나스닥100', asset_type_code: 'FOREIGN_STOCK', asset_type_label: '해외주식', currency_exposure: false },
+  { name: 'KODEX 200', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  { name: 'KODEX 국고채10년', asset_type_code: 'DOMESTIC_BOND', asset_type_label: '국내채권', currency_exposure: false },
+  { name: 'KODEX 골드선물', asset_type_code: 'GOLD', asset_type_label: '금', currency_exposure: false },
+  { name: 'TIGER 원유선물', asset_type_code: 'COMMODITY', asset_type_label: '원자재', currency_exposure: false },
+  { name: 'KODEX MSCI Korea', asset_type_code: 'DOMESTIC_STOCK', asset_type_label: '국내주식', currency_exposure: false },
+  // 예금/적금
+  { name: '카카오뱅크 정기예금', asset_type_code: 'DEPOSIT', asset_type_label: '예금', currency_exposure: false },
+  { name: '토스뱅크 정기예금', asset_type_code: 'DEPOSIT', asset_type_label: '예금', currency_exposure: false },
+  { name: '신한은행 정기예금', asset_type_code: 'DEPOSIT', asset_type_label: '예금', currency_exposure: false },
+  { name: '국민은행 적금', asset_type_code: 'SAVINGS', asset_type_label: '적금', currency_exposure: false },
+  { name: '신한은행 적금', asset_type_code: 'SAVINGS', asset_type_label: '적금', currency_exposure: false },
+  // 기타
+  { name: 'CMA (카카오뱅크)', asset_type_code: 'CMA', asset_type_label: 'CMA', currency_exposure: false },
+  { name: 'MMF', asset_type_code: 'MMF', asset_type_label: 'MMF', currency_exposure: false },
+  { name: '금 현물', asset_type_code: 'GOLD', asset_type_label: '금', currency_exposure: false },
+]
+
 export const ASSET_TYPES: CodeLabel[] = [
   { code: 'CASH', label: '현금' },
   { code: 'DEPOSIT', label: '예금' },
@@ -57,7 +97,7 @@ const initialHoldings: Holding[] = [
     account_id: ACC1,
     asset_name: '삼성전자',
     asset_type: { code: 'DOMESTIC_STOCK', label: '국내주식' },
-    currency: 'KRW',
+    currency_exposure: false,
     principal_value: 3600000,
     current_value: 3925000,
     unrealized_gain: 325000,
@@ -68,7 +108,7 @@ const initialHoldings: Holding[] = [
     account_id: ACC1,
     asset_name: 'TIGER 미국S&P500',
     asset_type: { code: 'FOREIGN_STOCK', label: '해외주식' },
-    currency: 'KRW',
+    currency_exposure: false,
     principal_value: 1420000,
     current_value: 1680000,
     unrealized_gain: 260000,
@@ -79,7 +119,7 @@ const initialHoldings: Holding[] = [
     account_id: ACC1,
     asset_name: 'KODEX 국고채10년',
     asset_type: { code: 'DOMESTIC_BOND', label: '국내채권' },
-    currency: 'KRW',
+    currency_exposure: false,
     principal_value: 1035000,
     current_value: 1012000,
     unrealized_gain: -23000,
@@ -90,7 +130,7 @@ const initialHoldings: Holding[] = [
     account_id: ACC2,
     asset_name: 'TIGER 나스닥100',
     asset_type: { code: 'FOREIGN_STOCK', label: '해외주식' },
-    currency: 'KRW',
+    currency_exposure: false,
     principal_value: 2640000,
     current_value: 3060000,
     unrealized_gain: 420000,
@@ -101,7 +141,7 @@ const initialHoldings: Holding[] = [
     account_id: ACC2,
     asset_name: 'KODEX 골드선물',
     asset_type: { code: 'GOLD', label: '금' },
-    currency: 'KRW',
+    currency_exposure: false,
     principal_value: 1000000,
     current_value: 1096000,
     unrealized_gain: 96000,
@@ -112,7 +152,7 @@ const initialHoldings: Holding[] = [
     account_id: ACC3,
     asset_name: '카카오뱅크 CMA',
     asset_type: { code: 'CMA', label: 'CMA' },
-    currency: 'KRW',
+    currency_exposure: false,
     principal_value: 5000000,
     current_value: null,
     unrealized_gain: null,
@@ -223,7 +263,7 @@ function getHoldings(accountId: string): Holding[] {
 function buildHolding(
   id: string,
   accountId: string,
-  data: { name: string; asset_type_code: string; currency: string; principal_value: number; current_value?: number }
+  data: { name: string; asset_type_code: string; currency_exposure: boolean; principal_value: number; current_value?: number }
 ): Holding {
   const asset_type = ASSET_TYPES.find(t => t.code === data.asset_type_code)!
   const current_value = data.current_value ?? null
@@ -237,7 +277,7 @@ function buildHolding(
     account_id: accountId,
     asset_name: data.name,
     asset_type,
-    currency: data.currency,
+    currency_exposure: data.currency_exposure,
     principal_value: data.principal_value,
     current_value,
     unrealized_gain,
@@ -247,7 +287,7 @@ function buildHolding(
 
 function createHolding(
   accountId: string,
-  data: { name: string; asset_type_code: string; currency: string; principal_value: number; current_value?: number }
+  data: { name: string; asset_type_code: string; currency_exposure: boolean; principal_value: number; current_value?: number }
 ): Holding {
   if (!_accountBases.find(a => a.id === accountId)) throw new Error('계좌를 찾을 수 없습니다.')
   const holding = buildHolding(uuid(), accountId, data)
@@ -258,7 +298,7 @@ function createHolding(
 function updateHolding(
   accountId: string,
   holdingId: string,
-  data: { name: string; asset_type_code: string; currency: string; principal_value: number; current_value?: number }
+  data: { name: string; asset_type_code: string; currency_exposure: boolean; principal_value: number; current_value?: number }
 ): Holding {
   if (!_holdings.find(h => h.id === holdingId && h.account_id === accountId)) {
     throw new Error('종목을 찾을 수 없습니다.')
@@ -282,6 +322,11 @@ export const mockStore = {
   getInstitutions: () => delay([...INSTITUTIONS]),
   getAccountTypes: () => delay([...ACCOUNT_TYPES]),
   getAssetTypes: () => delay([...ASSET_TYPES]),
+  searchAssets: (query: string) => {
+    const q = query.trim().toLowerCase()
+    if (!q) return delay<AssetMeta[]>([])
+    return delay(ASSETS.filter((a) => a.name.toLowerCase().includes(q)).slice(0, 10))
+  },
   getAccounts: () => delay(getAccounts()),
   getAccount: (id: string) => delay(getAccount(id)),
   createAccount: (data: Parameters<typeof createAccount>[0]) => delay(createAccount(data)),

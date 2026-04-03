@@ -3,6 +3,13 @@ export interface CodeLabel {
   label: string;
 }
 
+export interface AssetMeta {
+  name: string;
+  asset_type_code: string;
+  asset_type_label: string;
+  currency_exposure: boolean;
+}
+
 export interface Account {
   id: string;
   institution: CodeLabel;
@@ -20,7 +27,7 @@ export interface Holding {
   account_id: string;
   asset_name: string;
   asset_type: CodeLabel;
-  currency: string;
+  currency_exposure: boolean;
   principal_value: number;
   current_value: number | null;
   unrealized_gain: number | null;
@@ -37,7 +44,7 @@ export interface CreateAccountRequest {
 export interface CreateHoldingRequest {
   name: string;
   asset_type_code: string;
-  currency: string;
+  currency_exposure: boolean;
   principal_value: number;
   current_value?: number;
 }
