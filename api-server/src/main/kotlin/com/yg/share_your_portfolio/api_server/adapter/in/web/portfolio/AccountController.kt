@@ -1,14 +1,10 @@
 package com.yg.share_your_portfolio.api_server.adapter.`in`.web.portfolio
 
 import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.AccountResponse
-import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.ModifyAccountRequest
 import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.toResponse
 import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.AccountUseCase
-import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.CreateAccountCommand
-import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.UpdateAccountCommand
+import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.ModifyAccountCommand
 import com.yg.share_your_portfolio.api_server.domain.id.AccountId
-import com.yg.share_your_portfolio.api_server.domain.vo.AccountType
-import com.yg.share_your_portfolio.api_server.domain.vo.Institution
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
@@ -20,13 +16,7 @@ internal class AccountController(private val accountUseCase: AccountUseCase) {
     fun getAccounts(): List<AccountResponse> = accountUseCase.getAccounts().map { it.toResponse() }
 
     @PostMapping(version = "v1")
-    fun createAccount(@RequestBody request: ModifyAccountRequest): AccountResponse {
-        val command = CreateAccountCommand(
-            institution = Institution.valueOf(request.institutionCode),
-            accountNumber = request.accountNumber,
-            accountType = AccountType.valueOf(request.accountTypeCode),
-            accountName = request.accountName,
-        )
+    fun createAccount(@RequestBody command: ModifyAccountCommand): AccountResponse {
         return accountUseCase.createAccount(command).toResponse()
     }
 
@@ -38,14 +28,8 @@ internal class AccountController(private val accountUseCase: AccountUseCase) {
     @PutMapping("/{id}", version = "v1")
     fun updateAccount(
         @PathVariable id: Long,
-        @RequestBody request: ModifyAccountRequest,
+        @RequestBody command: ModifyAccountCommand,
     ): AccountResponse {
-        val command = UpdateAccountCommand(
-            institution = Institution.valueOf(request.institutionCode),
-            accountNumber = request.accountNumber,
-            accountType = AccountType.valueOf(request.accountTypeCode),
-            accountName = request.accountName,
-        )
         return accountUseCase.updateAccount(AccountId(id), command).toResponse()
     }
 

@@ -3,7 +3,6 @@ package com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio
 import com.yg.share_your_portfolio.api_server.domain.id.AccountId
 import com.yg.share_your_portfolio.api_server.domain.id.HoldingId
 import com.yg.share_your_portfolio.api_server.domain.portfolio.Holding
-import com.yg.share_your_portfolio.api_server.domain.vo.AssetType
 import java.math.BigDecimal
 
 interface HoldingUseCase {
@@ -11,13 +10,13 @@ interface HoldingUseCase {
 
     fun createHolding(
         accountId: AccountId,
-        command: CreateHoldingCommand,
+        command: ModifyHoldingCommand,
     ): Holding
 
     fun updateHolding(
         accountId: AccountId,
         holdingId: HoldingId,
-        command: UpdateHoldingCommand,
+        command: ModifyHoldingCommand,
     ): Holding
 
     fun deleteHolding(
@@ -26,18 +25,8 @@ interface HoldingUseCase {
     )
 }
 
-data class CreateHoldingCommand(
-    val name: String,
-    val assetType: AssetType,
-    val currencyExposure: Boolean,
-    val principalValue: BigDecimal,
-    val currentValue: BigDecimal?,
-)
-
-data class UpdateHoldingCommand(
-    val name: String,
-    val assetType: AssetType,
-    val currencyExposure: Boolean,
+data class ModifyHoldingCommand(
+    val assetTicker: String,
     val principalValue: BigDecimal,
     val currentValue: BigDecimal?,
 )

@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: syp-api-server
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+

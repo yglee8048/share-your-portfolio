@@ -32,16 +32,16 @@ internal class AccountJdbcAdapter(private val accountRepository: AccountReposito
 
 private fun AccountEntity.toDomain() = Account(
     id = AccountId(id!!),
-    institution = Institution.valueOf(institution),
+    institution = Institution.valueOf(institutionCode),
     accountNumber = accountNumber,
-    type = AccountType.valueOf(accountType),
-    name = accountName,
+    type = AccountType.valueOf(type),
+    name = name,
 )
 
 private fun Account.toEntity() = AccountEntity(
     id = id.value.takeIf { it != 0L },
-    institution = institution.name,
+    institutionCode = institution.name,
     accountNumber = accountNumber,
-    accountType = type.name,
-    accountName = name,
+    type = type.name,
+    name = name,
 )

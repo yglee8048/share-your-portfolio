@@ -8,14 +8,14 @@ import java.math.BigDecimal
 
 interface AccountUseCase {
     fun getAccounts(): List<AccountSummary>
-    
+
     fun getAccount(id: AccountId): AccountSummary
 
-    fun createAccount(command: CreateAccountCommand): AccountSummary
+    fun createAccount(command: ModifyAccountCommand): AccountSummary
 
     fun updateAccount(
         id: AccountId,
-        command: UpdateAccountCommand,
+        command: ModifyAccountCommand,
     ): AccountSummary
 
     fun deleteAccount(id: AccountId)
@@ -29,14 +29,7 @@ data class AccountSummary(
     val profitRate: BigDecimal,
 )
 
-data class CreateAccountCommand(
-    val institution: Institution,
-    val accountNumber: String,
-    val accountType: AccountType,
-    val accountName: String,
-)
-
-data class UpdateAccountCommand(
+data class ModifyAccountCommand(
     val institution: Institution,
     val accountNumber: String,
     val accountType: AccountType,

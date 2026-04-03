@@ -4,10 +4,3 @@ internal data class CodeLabelResponse(
     val code: String,
     val label: String,
 )
-
-internal data class AssetSearchResponse(
-    val name: String,
-    val assetTypeCode: String,
-    val assetTypeLabel: String,
-    val currencyExposure: Boolean,
-)

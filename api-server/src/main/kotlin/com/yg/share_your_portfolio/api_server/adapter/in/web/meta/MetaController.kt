@@ -1,7 +1,8 @@
 package com.yg.share_your_portfolio.api_server.adapter.`in`.web.meta
 
-import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.AssetSearchResponse
+import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.AssetResponse
 import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.CodeLabelResponse
+import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.toResponse
 import com.yg.share_your_portfolio.api_server.application.port.`in`.meta.MetaUseCase
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -24,13 +25,6 @@ internal class MetaController(private val metaUseCase: MetaUseCase) {
         .map { CodeLabelResponse(it.name, it.label) }
 
     @GetMapping("/assets", version = "v1")
-    internal fun searchAssets(@RequestParam q: String): List<AssetSearchResponse> = metaUseCase.searchAssets(q)
-        .map {
-            AssetSearchResponse(
-                name = it.name,
-                assetTypeCode = it.type.name,
-                assetTypeLabel = it.type.label,
-                currencyExposure = it.currencyExposure,
-            )
-        }
+    internal fun searchAssets(@RequestParam q: String): List<AssetResponse> = metaUseCase.searchAssets(q)
+        .map { it.toResponse() }
 }

@@ -1,14 +1,11 @@
 package com.yg.share_your_portfolio.api_server.adapter.`in`.web.portfolio
 
 import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.HoldingResponse
-import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.ModifyHoldingRequest
 import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.toResponse
-import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.CreateHoldingCommand
 import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.HoldingUseCase
-import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.UpdateHoldingCommand
+import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.ModifyHoldingCommand
 import com.yg.share_your_portfolio.api_server.domain.id.AccountId
 import com.yg.share_your_portfolio.api_server.domain.id.HoldingId
-import com.yg.share_your_portfolio.api_server.domain.vo.AssetType
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
@@ -25,15 +22,8 @@ internal class HoldingController(private val holdingUseCase: HoldingUseCase) {
     @ResponseStatus(HttpStatus.CREATED)
     fun createHolding(
         @PathVariable accountId: Long,
-        @RequestBody request: ModifyHoldingRequest,
+        @RequestBody command: ModifyHoldingCommand,
     ): HoldingResponse {
-        val command = CreateHoldingCommand(
-            name = request.name,
-            assetType = AssetType.valueOf(request.assetTypeCode),
-            currencyExposure = request.currencyExposure,
-            principalValue = request.principalValue,
-            currentValue = request.currentValue,
-        )
         return holdingUseCase.createHolding(AccountId(accountId), command).toResponse()
     }
 
@@ -41,15 +31,8 @@ internal class HoldingController(private val holdingUseCase: HoldingUseCase) {
     fun updateHolding(
         @PathVariable accountId: Long,
         @PathVariable holdingId: Long,
-        @RequestBody request: ModifyHoldingRequest,
+        @RequestBody command: ModifyHoldingCommand,
     ): HoldingResponse {
-        val command = UpdateHoldingCommand(
-            name = request.name,
-            assetType = AssetType.valueOf(request.assetTypeCode),
-            currencyExposure = request.currencyExposure,
-            principalValue = request.principalValue,
-            currentValue = request.currentValue,
-        )
         return holdingUseCase.updateHolding(AccountId(accountId), HoldingId(holdingId), command)
             .toResponse()
     }

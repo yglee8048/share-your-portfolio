@@ -3,13 +3,6 @@ package com.yg.share_your_portfolio.api_server.adapter.`in`.dto
 import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.AccountSummary
 import java.math.BigDecimal
 
-internal data class ModifyAccountRequest(
-    val institutionCode: String,
-    val accountNumber: String,
-    val accountTypeCode: String,
-    val accountName: String,
-)
-
 internal data class AccountResponse(
     val id: Long,
     val institution: CodeLabelResponse,

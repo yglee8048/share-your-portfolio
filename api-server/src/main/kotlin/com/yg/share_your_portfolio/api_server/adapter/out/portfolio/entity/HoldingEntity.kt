@@ -8,9 +8,7 @@ import java.math.BigDecimal
 internal data class HoldingEntity(
     @Id val id: Long? = null,
     val accountId: Long,
-    val assetName: String,
-    val assetType: String,
-    val currencyExposure: Boolean,
+    val assetTicker: String,
     val principalValue: BigDecimal,
     val currentValue: BigDecimal?,
 )

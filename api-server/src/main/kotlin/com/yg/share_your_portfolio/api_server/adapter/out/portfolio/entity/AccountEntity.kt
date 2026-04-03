@@ -6,8 +6,8 @@ import org.springframework.data.relational.core.mapping.Table
 @Table("accounts")
 internal data class AccountEntity(
     @Id val id: Long? = null,
-    val institution: String,
+    val institutionCode: String,
     val accountNumber: String,
-    val accountType: String,
-    val accountName: String,
+    val type: String,
+    val name: String,
 )

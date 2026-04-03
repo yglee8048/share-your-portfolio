@@ -2,8 +2,7 @@ package com.yg.share_your_portfolio.api_server.application.service.portfolio
 
 import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.AccountSummary
 import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.AccountUseCase
-import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.CreateAccountCommand
-import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.UpdateAccountCommand
+import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.ModifyAccountCommand
 import com.yg.share_your_portfolio.api_server.application.port.out.portfolio.AccountPort
 import com.yg.share_your_portfolio.api_server.application.port.out.portfolio.HoldingPort
 import com.yg.share_your_portfolio.api_server.domain.id.AccountId
@@ -30,12 +29,12 @@ internal class AccountService(
 
     @Transactional(readOnly = true)
     override fun getAccount(id: AccountId): AccountSummary {
-        val account = accountPort.findById(id) ?: throw NoSuchElementException("계좌를 찾을 수 없습니다.")
+        val account = accountPort.findById(id) ?: throw NoSuchElementException("존재하지 않는 계좌: $id")
         return toSummary(account, holdingPort.findByAccountId(id))
     }
 
     @Transactional
-    override fun createAccount(command: CreateAccountCommand): AccountSummary {
+    override fun createAccount(command: ModifyAccountCommand): AccountSummary {
         val account = Account(
             id = AccountId(0L),
             institution = command.institution,
@@ -50,9 +49,9 @@ internal class AccountService(
     @Transactional
     override fun updateAccount(
         id: AccountId,
-        command: UpdateAccountCommand,
+        command: ModifyAccountCommand,
     ): AccountSummary {
-        accountPort.findById(id) ?: throw NoSuchElementException("계좌를 찾을 수 없습니다.")
+        accountPort.findById(id) ?: throw NoSuchElementException("존재하지 않는 계좌: $id")
         val updated = Account(
             id = id,
             institution = command.institution,
@@ -66,7 +65,7 @@ internal class AccountService(
 
     @Transactional
     override fun deleteAccount(id: AccountId) {
-        accountPort.findById(id) ?: throw NoSuchElementException("계좌를 찾을 수 없습니다.")
+        accountPort.findById(id) ?: throw NoSuchElementException("존재하지 않는 계좌: $id")
         holdingPort.deleteByAccountId(id)
         accountPort.delete(id)
     }

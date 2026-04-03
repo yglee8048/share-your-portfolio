@@ -3,11 +3,10 @@ package com.yg.share_your_portfolio.api_server.adapter.out.portfolio.adapter
 import com.yg.share_your_portfolio.api_server.adapter.out.portfolio.entity.HoldingEntity
 import com.yg.share_your_portfolio.api_server.adapter.out.portfolio.repository.HoldingRepository
 import com.yg.share_your_portfolio.api_server.application.port.out.portfolio.HoldingPort
+import com.yg.share_your_portfolio.api_server.domain.data.AssetHolders
 import com.yg.share_your_portfolio.api_server.domain.id.AccountId
 import com.yg.share_your_portfolio.api_server.domain.id.HoldingId
-import com.yg.share_your_portfolio.api_server.domain.portfolio.Asset
 import com.yg.share_your_portfolio.api_server.domain.portfolio.Holding
-import com.yg.share_your_portfolio.api_server.domain.vo.AssetType
 import org.springframework.stereotype.Component
 
 @Component
@@ -38,11 +37,7 @@ internal class HoldingJdbcAdapter(private val holdingRepository: HoldingReposito
 private fun HoldingEntity.toDomain() = Holding(
     holdingId = HoldingId(id!!),
     accountId = AccountId(accountId),
-    asset = Asset(
-        name = assetName,
-        type = AssetType.valueOf(assetType),
-        currencyExposure = currencyExposure,
-    ),
+    asset = AssetHolders.findByTicker(assetTicker) ?: throw NoSuchElementException("존재하지 않는 종목: $assetTicker"),
     principalValue = principalValue,
     currentValue = currentValue,
 )
@@ -50,9 +45,7 @@ private fun HoldingEntity.toDomain() = Holding(
 private fun Holding.toEntity() = HoldingEntity(
     id = holdingId.value.takeIf { it != 0L },
     accountId = accountId.value,
-    assetName = asset.name,
-    assetType = asset.type.name,
-    currencyExposure = asset.currencyExposure,
+    assetTicker = asset.name,
     principalValue = principalValue,
     currentValue = currentValue,
 )
