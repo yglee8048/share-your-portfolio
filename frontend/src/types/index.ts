@@ -4,14 +4,14 @@ export interface CodeLabel {
 }
 
 export interface AssetMeta {
+  ticker: string;
   name: string;
-  asset_type_code: string;
-  asset_type_label: string;
+  type: CodeLabel;
   currency_exposure: boolean;
 }
 
 export interface Account {
-  id: string;
+  id: number;
   institution: CodeLabel;
   account_number: string;
   account_type: CodeLabel;
@@ -23,11 +23,9 @@ export interface Account {
 }
 
 export interface Holding {
-  id: string;
-  account_id: string;
-  asset_name: string;
-  asset_type: CodeLabel;
-  currency_exposure: boolean;
+  id: number;
+  account_id: number;
+  asset: AssetMeta;
   principal_value: number;
   current_value: number | null;
   unrealized_gain: number | null;
@@ -35,16 +33,14 @@ export interface Holding {
 }
 
 export interface CreateAccountRequest {
-  institution_code: string;
+  institution: string;
   account_number: string;
-  account_type_code: string;
+  account_type: string;
   account_name: string;
 }
 
 export interface CreateHoldingRequest {
-  name: string;
-  asset_type_code: string;
-  currency_exposure: boolean;
+  asset_ticker: string;
   principal_value: number;
   current_value?: number;
 }

@@ -61,9 +61,7 @@ export default function NewHoldingPage() {
     setError(null)
     try {
       await createHolding(accountId, {
-        name: selectedAsset!.name,
-        asset_type_code: selectedAsset!.asset_type_code,
-        currency_exposure: selectedAsset!.currency_exposure,
+        asset_ticker: selectedAsset!.ticker,
         principal_value: Number(form.principal_value),
         ...(form.current_value ? { current_value: Number(form.current_value) } : {}),
       })
@@ -102,7 +100,7 @@ export default function NewHoldingPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">자산 유형</label>
               <div className="w-full rounded-xl border border-brand-100 bg-gray-50 px-3 py-3 text-sm text-gray-500 min-h-[46px]">
-                {selectedAsset ? selectedAsset.asset_type_label : <span className="text-gray-300">자동 입력</span>}
+                {selectedAsset ? selectedAsset.type.label : <span className="text-gray-300">자동 입력</span>}
               </div>
             </div>
             <div className="flex flex-col gap-1.5">

@@ -17,19 +17,19 @@ internal class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException::class)
     fun handleNotFound(e: NoSuchElementException): ResponseEntity<ApiResponse<Nothing>> {
-        log.info("Not found: {}", e.message)
+        log.info("Not found: {}", e.message, e)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.NOT_FOUND))
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgument(e: IllegalArgumentException): ResponseEntity<ApiResponse<Nothing>> {
-        log.info("Bad request: {}", e.message)
+        log.info("Bad request: {}", e.message, e)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.BAD_REQUEST))
     }
 
     @ExceptionHandler(BusinessException::class)
     fun handleBusiness(e: BusinessException): ResponseEntity<ApiResponse<Nothing>> {
-        log.info("Business exception: {}", e.message)
+        log.info("Business exception: {}", e.message, e)
         return ResponseEntity.status(e.errorCode.httpStatus).body(ApiResponse.error(e.errorCode))
     }
 

@@ -31,16 +31,10 @@ export default function EditHoldingPage() {
   useEffect(() => {
     getHoldings(accountId)
       .then((holdings) => {
-        const holding = holdings.find((h) => h.id === holdingId)
+        const holding = holdings.find((h) => String(h.id) === holdingId)
         if (holding) {
-          const asset: AssetMeta = {
-            name: holding.asset_name,
-            asset_type_code: holding.asset_type.code,
-            asset_type_label: holding.asset_type.label,
-            currency_exposure: holding.currency_exposure,
-          }
-          setSelectedAsset(asset)
-          setQuery(holding.asset_name)
+          setSelectedAsset(holding.asset)
+          setQuery(holding.asset.name)
           setForm({
             principal_value: String(holding.principal_value),
             current_value: holding.current_value !== null ? String(holding.current_value) : '',
@@ -88,9 +82,7 @@ export default function EditHoldingPage() {
     setError(null)
     try {
       await updateHolding(accountId, holdingId, {
-        name: selectedAsset!.name,
-        asset_type_code: selectedAsset!.asset_type_code,
-        currency_exposure: selectedAsset!.currency_exposure,
+        asset_ticker: selectedAsset!.ticker,
         principal_value: Number(form.principal_value),
         ...(form.current_value ? { current_value: Number(form.current_value) } : {}),
       })
@@ -167,7 +159,7 @@ export default function EditHoldingPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">자산 유형</label>
               <div className="w-full rounded-xl border border-brand-100 bg-gray-50 px-3 py-3 text-sm text-gray-500 min-h-[46px]">
-                {selectedAsset ? selectedAsset.asset_type_label : <span className="text-gray-300">자동 입력</span>}
+                {selectedAsset ? selectedAsset.type.label : <span className="text-gray-300">자동 입력</span>}
               </div>
             </div>
             <div className="flex flex-col gap-1.5">

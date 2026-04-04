@@ -46,10 +46,10 @@ export default function AccountDetailPage() {
     }
   }
 
-  async function handleDeleteHolding(holdingId: string, name: string) {
+  async function handleDeleteHolding(holdingId: number, name: string) {
     if (!window.confirm(`"${name}" 종목을 삭제하시겠습니까?`)) return
     try {
-      await deleteHolding(id, holdingId)
+      await deleteHolding(id, String(holdingId))
       setHoldings((prev) => prev.filter((h) => h.id !== holdingId))
     } catch (e: unknown) {
       alert(e instanceof Error ? e.message : '삭제 중 오류가 발생했습니다.')
@@ -191,11 +191,11 @@ export default function AccountDetailPage() {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                       <span className="font-semibold text-gray-800 text-sm">
-                        {holding.asset_name}
+                        {holding.asset.name}
                       </span>
-                      <Badge>{holding.asset_type.label}</Badge>
+                      <Badge>{holding.asset.type.label}</Badge>
                       <span className="text-xs text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded-full">
-                        {getExposureLabel(holding.currency_exposure)}
+                        {getExposureLabel(holding.asset.currency_exposure)}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -218,7 +218,7 @@ export default function AccountDetailPage() {
                         variant="danger"
                         size="sm"
                         onClick={() =>
-                          handleDeleteHolding(holding.id, holding.asset_name)
+                          handleDeleteHolding(holding.id, holding.asset.name)
                         }
                         title="삭제"
                       >

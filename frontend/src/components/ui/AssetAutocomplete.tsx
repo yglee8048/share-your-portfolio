@@ -119,7 +119,7 @@ export default function AssetAutocomplete({ label, value, onChange, onSelect, on
         <ul className="absolute top-full mt-1 left-0 right-0 z-50 bg-white border border-brand-100 rounded-xl shadow-lg overflow-hidden">
           {results.map((asset, i) => (
             <li
-              key={`${asset.name}-${asset.asset_type_code}`}
+              key={asset.ticker}
               onMouseDown={() => handleSelect(asset)}
               onMouseEnter={() => setActiveIndex(i)}
               className={[
@@ -130,7 +130,7 @@ export default function AssetAutocomplete({ label, value, onChange, onSelect, on
               <span className="font-medium text-gray-800">{asset.name}</span>
               <div className="flex items-center gap-1.5 shrink-0 ml-2">
                 <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
-                  {asset.asset_type_label}
+                  {asset.type.label}
                 </span>
                 <span className="text-xs text-gray-400">{getExposureLabel(asset.currency_exposure)}</span>
               </div>

@@ -45,7 +45,7 @@ private fun HoldingEntity.toDomain() = Holding(
 private fun Holding.toEntity() = HoldingEntity(
     id = holdingId.value.takeIf { it != 0L },
     accountId = accountId.value,
-    assetTicker = asset.name,
+    assetTicker = asset.ticker,
     principalValue = principalValue,
     currentValue = currentValue,
 )

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/meta")
+@RequestMapping("/api/{version}/meta")
 internal class MetaController(private val metaUseCase: MetaUseCase) {
     @GetMapping("/institutions", version = "v1")
     internal fun getInstitutions(): List<CodeLabelResponse> = metaUseCase.getInstitutions()

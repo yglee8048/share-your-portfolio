@@ -26,9 +26,9 @@ export default function EditAccountPage() {
   const [error, setError] = useState<string | null>(null)
 
   const [form, setForm] = useState({
-    institution_code: '',
+    institution: '',
     account_number: '',
-    account_type_code: '',
+    account_type: '',
     account_name: '',
   })
 
@@ -40,9 +40,9 @@ export default function EditAccountPage() {
         setInstitutions(inst)
         setAccountTypes(types)
         setForm({
-          institution_code: account.institution.code,
+          institution: account.institution.code,
           account_number: account.account_number,
-          account_type_code: account.account_type.code,
+          account_type: account.account_type.code,
           account_name: account.account_name,
         })
       })
@@ -52,9 +52,9 @@ export default function EditAccountPage() {
 
   function validate() {
     const newErrors: Record<string, string> = {}
-    if (!form.institution_code) newErrors.institution_code = '금융기관을 선택해주세요.'
+    if (!form.institution) newErrors.institution = '금융기관을 선택해주세요.'
     if (!form.account_number.trim()) newErrors.account_number = '계좌번호를 입력해주세요.'
-    if (!form.account_type_code) newErrors.account_type_code = '계좌 유형을 선택해주세요.'
+    if (!form.account_type) newErrors.account_type = '계좌 유형을 선택해주세요.'
     if (!form.account_name.trim()) newErrors.account_name = '계좌 별칭을 입력해주세요.'
     return newErrors
   }
@@ -100,15 +100,15 @@ export default function EditAccountPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <Select
               label="금융기관"
-              value={form.institution_code}
+              value={form.institution}
               onChange={(e) =>
-                setForm((f) => ({ ...f, institution_code: e.target.value }))
+                setForm((f) => ({ ...f, institution: e.target.value }))
               }
               options={institutions.map((i) => ({
                 value: i.code,
                 label: i.label,
               }))}
-              error={errors.institution_code}
+              error={errors.institution}
             />
 
             <Input
@@ -123,15 +123,15 @@ export default function EditAccountPage() {
 
             <Select
               label="계좌 유형"
-              value={form.account_type_code}
+              value={form.account_type}
               onChange={(e) =>
-                setForm((f) => ({ ...f, account_type_code: e.target.value }))
+                setForm((f) => ({ ...f, account_type: e.target.value }))
               }
               options={accountTypes.map((t) => ({
                 value: t.code,
                 label: t.label,
               }))}
-              error={errors.account_type_code}
+              error={errors.account_type}
             />
 
             <Input

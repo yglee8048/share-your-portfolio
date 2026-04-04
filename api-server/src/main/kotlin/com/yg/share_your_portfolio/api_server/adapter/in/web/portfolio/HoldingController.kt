@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/accounts/{accountId}/holdings")
+@RequestMapping("/api/{version}/accounts/{accountId}/holdings")
 internal class HoldingController(private val holdingUseCase: HoldingUseCase) {
 
     @GetMapping(version = "v1")
