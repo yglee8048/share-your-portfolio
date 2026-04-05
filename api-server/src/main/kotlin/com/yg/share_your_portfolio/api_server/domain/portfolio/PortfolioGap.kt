@@ -20,6 +20,6 @@ class PortfolioGapItem(
     val needsRebalancing: Boolean = gap > REBALANCING_THRESHOLD
 
     companion object {
-        val REBALANCING_THRESHOLD = BigDecimal(5)
+        val REBALANCING_THRESHOLD = BigDecimal("5")
     }
 }
