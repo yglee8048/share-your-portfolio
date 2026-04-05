@@ -4,6 +4,8 @@ import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.Mo
 import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.ModifyPortfolioItemCommand
 import com.yg.share_your_portfolio.api_server.domain.id.AssetTicker
 import com.yg.share_your_portfolio.api_server.domain.portfolio.Portfolio
+import com.yg.share_your_portfolio.api_server.domain.portfolio.PortfolioGap
+import com.yg.share_your_portfolio.api_server.domain.portfolio.PortfolioGapItem
 import com.yg.share_your_portfolio.api_server.domain.portfolio.PortfolioItem
 import java.math.BigDecimal
 
@@ -52,4 +54,34 @@ internal fun Portfolio.toResponse() = PortfolioResponse(
 internal fun PortfolioItem.toResponse() = PortfolioItemResponse(
     asset = asset.toResponse(),
     targetRatio = targetRatio,
+)
+
+internal data class PortfolioGapResponse(
+    val totalCurrentValue: BigDecimal,
+    val needsRebalancing: Boolean,
+    val items: List<PortfolioGapItemResponse>,
+)
+
+internal data class PortfolioGapItemResponse(
+    val asset: AssetResponse,
+    val targetRatio: BigDecimal,
+    val currentRatio: BigDecimal,
+    val gap: BigDecimal,
+    val targetAmount: BigDecimal,
+    val currentAmount: BigDecimal,
+)
+
+internal fun PortfolioGap.toResponse() = PortfolioGapResponse(
+    totalCurrentValue = totalCurrentValue,
+    needsRebalancing = needsRebalancing,
+    items = items.map { it.toResponse() },
+)
+
+internal fun PortfolioGapItem.toResponse() = PortfolioGapItemResponse(
+    asset = asset.toResponse(),
+    targetRatio = targetRatio,
+    currentRatio = currentRatio,
+    gap = gap,
+    targetAmount = targetAmount,
+    currentAmount = currentAmount,
 )

@@ -1,5 +1,6 @@
 package com.yg.share_your_portfolio.api_server.adapter.`in`.web.portfolio
 
+import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.PortfolioGapResponse
 import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.PortfolioRequest
 import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.PortfolioResponse
 import com.yg.share_your_portfolio.api_server.adapter.`in`.dto.toCommand
@@ -36,7 +37,7 @@ internal class PortfolioController(
     }
 
     @GetMapping("/gap", version = "v1")
-    fun getPortfolioGap(@PathVariable accountId: Long) {
-
+    fun getPortfolioGap(@PathVariable accountId: Long): PortfolioGapResponse {
+        return portfolioUseCase.getPortfolioGap(AccountId(accountId)).toResponse()
     }
 }

@@ -17,7 +17,7 @@ class PortfolioGapItem(
     val targetAmount: BigDecimal,
     val currentAmount: BigDecimal,
 ) {
-    val needsRebalancing: Boolean = gap > REBALANCING_THRESHOLD
+    val needsRebalancing: Boolean = gap.abs() > REBALANCING_THRESHOLD
 
     companion object {
         val REBALANCING_THRESHOLD = BigDecimal("5")

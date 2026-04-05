@@ -91,7 +91,7 @@ internal class PortfolioService(
                 asset = item.asset,
                 targetRatio = item.targetRatio,
                 currentRatio = currentRatio,
-                gap = (item.targetRatio - currentRatio).abs(),
+                gap = item.targetRatio - currentRatio,
                 targetAmount = targetAmount,
                 currentAmount = currentAmount,
             )
