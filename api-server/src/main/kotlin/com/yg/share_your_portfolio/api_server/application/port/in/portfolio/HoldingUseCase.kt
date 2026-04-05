@@ -1,6 +1,7 @@
 package com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio
 
 import com.yg.share_your_portfolio.api_server.domain.id.AccountId
+import com.yg.share_your_portfolio.api_server.domain.id.AssetTicker
 import com.yg.share_your_portfolio.api_server.domain.id.HoldingId
 import com.yg.share_your_portfolio.api_server.domain.portfolio.Holding
 import java.math.BigDecimal
@@ -26,7 +27,7 @@ interface HoldingUseCase {
 }
 
 data class ModifyHoldingCommand(
-    val assetTicker: String,
+    val assetTicker: AssetTicker,
     val principalValue: BigDecimal,
     val currentValue: BigDecimal?,
 )

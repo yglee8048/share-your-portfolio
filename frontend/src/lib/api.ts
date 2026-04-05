@@ -1,4 +1,14 @@
-import type {Account, AssetMeta, CodeLabel, CreateAccountRequest, CreateHoldingRequest, Holding,} from '@/types'
+import type {
+  Account,
+  AssetMeta,
+  CodeLabel,
+  CreateAccountRequest,
+  CreateHoldingRequest,
+  Holding,
+  Portfolio,
+  PortfolioGap,
+  UpsertPortfolioRequest,
+} from '@/types'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
@@ -107,4 +117,37 @@ export function deleteHolding(
     return fetchAPI<void>(`/api/v1/accounts/${accountId}/holdings/${holdingId}`, {
         method: 'DELETE',
     })
+}
+
+// Portfolio
+export async function getPortfolio(accountId: string): Promise<Portfolio | null> {
+    const res = await fetch(`${BASE_URL}/api/v1/accounts/${accountId}/portfolio`, {
+        headers: { 'Content-Type': 'application/json' },
+    })
+    if (res.status === 404) return null
+    const body = await res.json()
+    if (!res.ok) {
+        throw new Error(body?.error_message || body?.message || `요청 처리 중 오류가 발생했습니다. (${res.status})`)
+    }
+    return body.data as Portfolio
+}
+
+export function upsertPortfolio(
+    accountId: string,
+    data: UpsertPortfolioRequest,
+): Promise<Portfolio> {
+    return fetchAPI<Portfolio>(`/api/v1/accounts/${accountId}/portfolio`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    })
+}
+
+export function deletePortfolio(accountId: string): Promise<void> {
+    return fetchAPI<void>(`/api/v1/accounts/${accountId}/portfolio`, {
+        method: 'DELETE',
+    })
+}
+
+export function getPortfolioGap(accountId: string): Promise<PortfolioGap> {
+    return fetchAPI<PortfolioGap>(`/api/v1/accounts/${accountId}/portfolio/gap`)
 }

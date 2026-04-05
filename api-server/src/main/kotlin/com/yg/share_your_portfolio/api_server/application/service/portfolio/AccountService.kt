@@ -5,6 +5,7 @@ import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.Ac
 import com.yg.share_your_portfolio.api_server.application.port.`in`.portfolio.ModifyAccountCommand
 import com.yg.share_your_portfolio.api_server.application.port.out.portfolio.AccountPort
 import com.yg.share_your_portfolio.api_server.application.port.out.portfolio.HoldingPort
+import com.yg.share_your_portfolio.api_server.application.port.out.portfolio.PortfolioPort
 import com.yg.share_your_portfolio.api_server.domain.id.AccountId
 import com.yg.share_your_portfolio.api_server.domain.portfolio.Account
 import com.yg.share_your_portfolio.api_server.domain.portfolio.Holding
@@ -17,6 +18,7 @@ import java.math.RoundingMode
 internal class AccountService(
     private val accountPort: AccountPort,
     private val holdingPort: HoldingPort,
+    private val portfolioPort: PortfolioPort,
 ) : AccountUseCase {
 
     @Transactional(readOnly = true)
@@ -67,6 +69,7 @@ internal class AccountService(
     override fun deleteAccount(id: AccountId) {
         accountPort.findById(id) ?: throw NoSuchElementException("존재하지 않는 계좌: $id")
         holdingPort.deleteByAccountId(id)
+        portfolioPort.deleteByAccountId(id)
         accountPort.delete(id)
     }
 

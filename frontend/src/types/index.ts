@@ -44,3 +44,36 @@ export interface CreateHoldingRequest {
   principal_value: number;
   current_value?: number;
 }
+
+export interface PortfolioItem {
+  asset: AssetMeta;
+  target_ratio: number;
+}
+
+export interface Portfolio {
+  account_id: number;
+  name: string;
+  description: string | null;
+  items: PortfolioItem[];
+}
+
+export interface GapItem {
+  asset: AssetMeta;
+  target_ratio: number | null;
+  current_ratio: number | null;
+  gap: number | null;
+  target_amount: number | null;
+  current_amount: number | null;
+}
+
+export interface PortfolioGap {
+  total_current_value: number;
+  needs_rebalancing: boolean;
+  items: GapItem[];
+}
+
+export interface UpsertPortfolioRequest {
+  name: string;
+  description?: string;
+  items: { asset_ticker: string; target_ratio: number }[];
+}

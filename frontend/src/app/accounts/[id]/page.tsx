@@ -14,7 +14,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
-import { Pencil, Trash2 } from 'lucide-react'
+import { BarChart3, Pencil, Trash2 } from 'lucide-react'
 
 export default function AccountDetailPage() {
   const router = useRouter()
@@ -173,6 +173,18 @@ export default function AccountDetailPage() {
           + 종목 추가
         </Button>
       </div>
+
+      {/* Portfolio link */}
+      <button
+        onClick={() => router.push(`/accounts/${id}/portfolio`)}
+        className="w-full flex items-center justify-between bg-brand-50 hover:bg-brand-100 border border-brand-100 rounded-2xl px-4 py-3 transition-colors duration-150"
+      >
+        <div className="flex items-center gap-2 text-sm font-medium text-brand-600">
+          <BarChart3 size={16} />
+          목표 포트폴리오
+        </div>
+        <span className="text-xs text-brand-400">괴리 분석 보기 →</span>
+      </button>
 
       {holdings.length === 0 ? (
         <div className="text-center py-12">

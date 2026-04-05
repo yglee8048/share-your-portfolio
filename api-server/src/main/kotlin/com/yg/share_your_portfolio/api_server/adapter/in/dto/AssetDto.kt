@@ -10,7 +10,7 @@ internal data class AssetResponse(
 )
 
 internal fun Asset.toResponse() = AssetResponse(
-    ticker,
+    ticker.value,
     name,
     CodeLabelResponse(type.name, type.label),
     currencyExposure,

@@ -32,7 +32,6 @@ internal class HoldingService(
         accountPort.findById(accountId) ?: throw NoSuchElementException("존재하지 않는 계좌: $accountId")
 
         val asset = AssetHolders.findByTicker(command.assetTicker)
-            ?: throw NoSuchElementException("존재하지 않는 자산: ${command.assetTicker}")
 
         val holding = Holding(
             holdingId = HoldingId(0L),
@@ -56,7 +55,6 @@ internal class HoldingService(
         }
 
         val asset = AssetHolders.findByTicker(command.assetTicker)
-            ?: throw NoSuchElementException("존재하지 않는 자산: ${command.assetTicker}")
 
         val holding = Holding(
             holdingId = holdingId,

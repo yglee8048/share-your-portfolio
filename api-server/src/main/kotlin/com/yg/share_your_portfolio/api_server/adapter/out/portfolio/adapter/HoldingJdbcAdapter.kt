@@ -5,6 +5,7 @@ import com.yg.share_your_portfolio.api_server.adapter.out.portfolio.repository.H
 import com.yg.share_your_portfolio.api_server.application.port.out.portfolio.HoldingPort
 import com.yg.share_your_portfolio.api_server.domain.data.AssetHolders
 import com.yg.share_your_portfolio.api_server.domain.id.AccountId
+import com.yg.share_your_portfolio.api_server.domain.id.AssetTicker
 import com.yg.share_your_portfolio.api_server.domain.id.HoldingId
 import com.yg.share_your_portfolio.api_server.domain.portfolio.Holding
 import org.springframework.stereotype.Component
@@ -37,7 +38,7 @@ internal class HoldingJdbcAdapter(private val holdingRepository: HoldingReposito
 private fun HoldingEntity.toDomain() = Holding(
     holdingId = HoldingId(id!!),
     accountId = AccountId(accountId),
-    asset = AssetHolders.findByTicker(assetTicker) ?: throw NoSuchElementException("존재하지 않는 종목: $assetTicker"),
+    asset = AssetHolders.findByTicker(AssetTicker(assetTicker)),
     principalValue = principalValue,
     currentValue = currentValue,
 )
@@ -45,7 +46,7 @@ private fun HoldingEntity.toDomain() = Holding(
 private fun Holding.toEntity() = HoldingEntity(
     id = holdingId.value.takeIf { it != 0L },
     accountId = accountId.value,
-    assetTicker = asset.ticker,
+    assetTicker = asset.ticker.value,
     principalValue = principalValue,
     currentValue = currentValue,
 )
